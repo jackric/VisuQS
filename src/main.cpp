@@ -158,82 +158,80 @@ printf("@@@@@\n@@@@@ Generated optimized psiArray, has size of %d countsites is 
 
 void init(void)
 {
-#ifdef _DEBUG
-cout << "\ninit(): $Revision: 1.5 $";
-#endif
+    DEBUG("init()");
 
-glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
-glEnable(GL_LIGHTING);
-glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
-glLightfv(GL_LIGHT0, GL_DIFFUSE, source_light);
-glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-glEnable(GL_LIGHT0);
-if(incommands.getvisMethod() == 'B')
-{
-glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-}
-if(incommands.getperiodic())
-{
-glFogi(GL_FOG_MODE, GL_EXP2);               // Fog Mode: GL_EXP, GL_EXP2 or GL_LINEAR
-glFogfv(GL_FOG_COLOR, fogColor);		// Set Fog Color
-glFogf(GL_FOG_DENSITY, 1.0f);		// How Dense Will The Fog Be
-glHint(GL_FOG_HINT, GL_NICEST);	        // Fog Hint Value: GL_NICEST, GL_FASTEST or GL_DONT_CARE
-glFogf(GL_FOG_START, 0.0f);		        // Fog Start Depth
-glFogf(GL_FOG_END, 3.0f);			// Fog End Depth
-glEnable(GL_FOG);				// Enables GL_FOG
-}
+    glEnable(GL_LIGHTING);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, source_light);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+    glEnable(GL_LIGHT0);
+    if(incommands.getvisMethod() == 'B')
+    {
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+    }
+    if(incommands.getperiodic())
+    {
+    glFogi(GL_FOG_MODE, GL_EXP2);               // Fog Mode: GL_EXP, GL_EXP2 or GL_LINEAR
+    glFogfv(GL_FOG_COLOR, fogColor);		// Set Fog Color
+    glFogf(GL_FOG_DENSITY, 1.0f);		// How Dense Will The Fog Be
+    glHint(GL_FOG_HINT, GL_NICEST);	        // Fog Hint Value: GL_NICEST, GL_FASTEST or GL_DONT_CARE
+    glFogf(GL_FOG_START, 0.0f);		        // Fog Start Depth
+    glFogf(GL_FOG_END, 3.0f);			// Fog End Depth
+    glEnable(GL_FOG);				// Enables GL_FOG
+    }
 
 
-glEnable(GL_COLOR_MATERIAL);
-glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
-glEnable (GL_CULL_FACE);
+    glEnable (GL_CULL_FACE);
 
-glClearColor (incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_b(), 0.0);
-glClearAccum(0.0, 0.0, 0.0, 0.0);
+    glClearColor (incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_b(), 0.0);
+    glClearAccum(0.0, 0.0, 0.0, 0.0);
 
-if(incommands.getthreshold() == 1.0)
-{
-if(data.dimension == 3)
-threshold = (float)1.0/(pow((double)data.extent, 3));
-else if(data.dimension == 2)
-threshold = (float)1.0/(pow((double)data.extent, 2));
-else
-threshold = 1.0/data.extent;
-}
-else
-threshold = incommands.getthreshold()*data.max;
+    if(incommands.getthreshold() == 1.0)
+    {
+    if(data.dimension == 3)
+    threshold = (float)1.0/(pow((double)data.extent, 3));
+    else if(data.dimension == 2)
+    threshold = (float)1.0/(pow((double)data.extent, 2));
+    else
+    threshold = 1.0/data.extent;
+    }
+    else
+    threshold = incommands.getthreshold()*data.max;
 
-if(incommands.getvisMethod() == 'B')
-{
-//Call JR's routine to create vector of pre-computed sizes & colours  
-genOptimizedArray(threshold);
-}
+    if(incommands.getvisMethod() == 'B')
+    {
+    //Call JR's routine to create vector of pre-computed sizes & colours  
+    genOptimizedArray(threshold);
+    }
 
-frames = (int)( incommands.getframerate()*incommands.getduration() );
-if(!incommands.getfly() && incommands.getfull())
-end = frames;
-else
-end = frames + 1;
+    frames = (int)( incommands.getframerate()*incommands.getduration() );
+    if(!incommands.getfly() && incommands.getfull())
+    end = frames;
+    else
+    end = frames + 1;
 
-flycounter=0;
-counter=0;
+    flycounter=0;
+    counter=0;
 
-radius = incommands.getstart_r();
-flownflag = false;
-angle = incommands.getstart_phi();
-angle2 = incommands.getstart_theta();
-rubberneck = 0.0;
-flipped = false;
+    radius = incommands.getstart_r();
+    flownflag = false;
+    angle = incommands.getstart_phi();
+    angle2 = incommands.getstart_theta();
+    rubberneck = 0.0;
+    flipped = false;
 
 #ifdef _WINDOWS
-system("del /q /s seq > NUL 2> NUL");
-system("rd /q /s seq 2> NUL");
+    system("del /q /s seq > NUL 2> NUL");
+    system("rd /q /s seq 2> NUL");
 #endif
 #ifdef _LINUX
-system("rm -r seq > /dev/null 2> /dev/null");
+    system("rm -r seq > /dev/null 2> /dev/null");
 #endif
 
 }
