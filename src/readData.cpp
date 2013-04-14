@@ -12,6 +12,7 @@ Revision:       $Revision: 1.3 $
 #include "quickSort.h"
 #include <stdio.h>
 #include <string.h>
+#include "debug.h"
 
 Input commands;
 
@@ -19,23 +20,26 @@ void findDimension(char line[], int dimension_extent[3], int numberLines)
 {
   int dimensionCheck;
   bool invalid = false;
-  float cubedRoot = pow(numberLines, 1.0/3);
-  float squareRoot = (float)sqrt((double)numberLines);
   int lineSize = strlen(line);
   int dimensionCount = -1;
 
-  #ifdef _DEBUG
-    cout << "\nfindDimension(): $Revision: 1.3 $";
-  #endif
+  DEBUG("findDimension()");
+  float cubedRoot = pow(numberLines, 1.0/3);
+  float squareRoot = (float)sqrt((double)numberLines);
 
-  if ( !(cubedRoot > (int)cubedRoot) ) { dimensionCheck = 3; }
-  else if ( !(squareRoot > (int)squareRoot) ) { dimensionCheck = 2; }
-  else { dimensionCheck = 1; }
+  // exact cube number
+  if (cubedRoot == (int)cubedRoot) ) {
+      dimensionCheck = 3;
+  } else if (squareRoot == (int)squareRoot){
+      dimensionCheck = 2;
+  } else { 
+      dimensionCheck = 1;
+  }
 
-  if (line[0] != '\040') {dimensionCount++;} // \040 is a SPACE
+  if (line[0] != ' ') {dimensionCount++;}
   for (int l = 0; l < lineSize - 1; l++)
   {
-    if (line[l] == '\040' && line[l+1] != '\040') {dimensionCount++;}
+    if (line[l] == ' ' && line[l+1] != ' ') {dimensionCount++;}
   }
 
 
