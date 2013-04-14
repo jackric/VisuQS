@@ -169,18 +169,18 @@ void init(void)
     glEnable(GL_LIGHT0);
     if(incommands.getvisMethod() == 'B')
     {
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+        glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
     }
     if(incommands.getperiodic())
     {
-    glFogi(GL_FOG_MODE, GL_EXP2);               // Fog Mode: GL_EXP, GL_EXP2 or GL_LINEAR
-    glFogfv(GL_FOG_COLOR, fogColor);		// Set Fog Color
-    glFogf(GL_FOG_DENSITY, 1.0f);		// How Dense Will The Fog Be
-    glHint(GL_FOG_HINT, GL_NICEST);	        // Fog Hint Value: GL_NICEST, GL_FASTEST or GL_DONT_CARE
-    glFogf(GL_FOG_START, 0.0f);		        // Fog Start Depth
-    glFogf(GL_FOG_END, 3.0f);			// Fog End Depth
-    glEnable(GL_FOG);				// Enables GL_FOG
+        glFogi(GL_FOG_MODE, GL_EXP2);               // Fog Mode: GL_EXP, GL_EXP2 or GL_LINEAR
+        glFogfv(GL_FOG_COLOR, fogColor);		// Set Fog Color
+        glFogf(GL_FOG_DENSITY, 1.0f);		// How Dense Will The Fog Be
+        glHint(GL_FOG_HINT, GL_NICEST);	        // Fog Hint Value: GL_NICEST, GL_FASTEST or GL_DONT_CARE
+        glFogf(GL_FOG_START, 0.0f);		        // Fog Start Depth
+        glFogf(GL_FOG_END, 3.0f);			// Fog End Depth
+        glEnable(GL_FOG);				// Enables GL_FOG
     }
 
 
@@ -192,29 +192,30 @@ void init(void)
     glClearColor (incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_b(), 0.0);
     glClearAccum(0.0, 0.0, 0.0, 0.0);
 
-    if(incommands.getthreshold() == 1.0)
-    {
-    if(data.dimension == 3)
-    threshold = (float)1.0/(pow((double)data.extent, 3));
-    else if(data.dimension == 2)
-    threshold = (float)1.0/(pow((double)data.extent, 2));
-    else
-    threshold = 1.0/data.extent;
+    if(incommands.getthreshold() == 1.0) {
+        if(data.dimension == 3) {
+            threshold = (float)1.0/(pow((double)data.extent, 3));
+        } else if(data.dimension == 2) {
+            threshold = (float)1.0/(pow((double)data.extent, 2));
+        } else {
+            threshold = 1.0/data.extent;
+        }
+    } else {
+        threshold = incommands.getthreshold()*data.max;
     }
-    else
-    threshold = incommands.getthreshold()*data.max;
 
     if(incommands.getvisMethod() == 'B')
     {
-    //Call JR's routine to create vector of pre-computed sizes & colours  
-    genOptimizedArray(threshold);
+        //Call JR's routine to create vector of pre-computed sizes & colours  
+        genOptimizedArray(threshold);
     }
 
     frames = (int)( incommands.getframerate()*incommands.getduration() );
-    if(!incommands.getfly() && incommands.getfull())
-    end = frames;
-    else
-    end = frames + 1;
+    if(!incommands.getfly() && incommands.getfull()) {
+        end = frames;
+    } else {
+        end = frames + 1;
+    }
 
     flycounter=0;
     counter=0;
