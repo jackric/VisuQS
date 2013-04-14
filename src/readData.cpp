@@ -94,31 +94,13 @@ void findDimension(char line[], int dimension_extent[3], int numberLines)
   }
 }
 
-struct array
+
+psiArray readData()
 {
-  vector< vector< vector< float > > > matrix3d;
-  vector< vector< float > > matrix2d;
-  vector< float > matrix1d;
-  vector< vector< vector< vector< int > > > > coords3d;
-  vector< vector< vector< int > > > coords2d;
-  vector< int > coords1d;
-  int extent, dimension;
-  float max;
-  float min;
-};
+  psiArray theStructure;
+  DEBUG("readData()");
 
-
-
-//array readData(char filename[40])
-array readData()
-{
-  array theStructure;
-
-  #ifdef _DEBUG
-    cout << "\nreadData(): $Revision: 1.3 $";
-  #endif
-
-//Open the file for reading
+  //Open the file for reading
   ifstream datafile ("VQSdata.txt");
   if (! datafile.is_open())
   { cout << "\nError opening file"; exit (1); }

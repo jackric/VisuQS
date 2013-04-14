@@ -35,18 +35,6 @@ Revision:       $Revision: 1.5 $
 #endif
 using namespace std;
 
-struct array
-{
-  vector< vector< vector< float > > > matrix3d;
-  vector< vector< float > > matrix2d;
-  vector< float > matrix1d;
-  vector< vector< vector< vector< int > > > > coords3d;
-  vector< vector< vector< int > > > coords2d;
-  vector< int > coords1d;
-  int extent, dimension;
-  float max;
-  float min;
-};
 
 
 //From http://www.techbytes.ca/techbyte103.html
@@ -76,7 +64,7 @@ bool FileExists(string strFilename) {
 
 // Global objects, structures & variables
 Input incommands;
-array data;
+psiArray data;
 
 int visStatus;
 int moving, startx, starty, n;
