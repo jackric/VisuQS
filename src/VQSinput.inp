@@ -1,0 +1,32 @@
+C	# Visualisation method: 'B'=Bubbles, 'C'=Cubes, 'F'=Fog
+1	# Colouring method: '0'=Graded, '1'=Fire
+1	# Periodic plotting: '0'=Single cube, '1'=Atmosphere
+1	# Probability threshold - N.B. '1.0' (max) defaults to average
+1	# Output type: '0'=Interactive, '1'=Still, '2'=Sequence of stills, '3'=.avi
+0	# Output format: '0'=.tga, '1'=.eps
+640	# Width of image in pixels (0 for max screen resolution)
+480	# Height of image in pixels (0 for max screen resolution)
+40	# Frame rate
+10	# Duration of animation (seconds)
+3	# Level of antialiasing
+1.5	# Start-r parameter
+0	# Start-phi parameter
+90	# Start-theta parameter (height)
+1.5	# End-r parameter
+180	# End-phi parameter
+90	# End-theta parameter (height)
+0	# Fly-through flag: '0'=Rotation, '1'=Fly-through
+0	# Flip flag (Always faces centre on fly-through): '0'=Normal, '1'=Flip
+0	# Angle of elevation of rotation towards end point
+1	# Full-rotation flag: '0'=Start to End, '1'=Full rotation
+0	# Angle of elevation of rotation back from end point
+0	# X-coord. of cube relative to centre of rotation
+0	# Y-coord. of cube relative to centre of rotation
+0	# Z-coord. of cube relative to centre of rotation
+0	# R value of background colour
+0	# G value of background colour
+0	# B value of background colour
+0	# Text flag: '0'=Text off, '1'=Text on
+1	# R value of text colour
+1	# G value of text colour
+1	# B value of text colour
