@@ -18,17 +18,21 @@ Input commands;
 
 void findDimension(char line[], int dimension_extent[3], int numberLines)
 {
+    /* Files can be like "x y z phi"
+     * Or just "phi" per line, and the program deduces 3d position from order in file
+     *
+     *
+     */
+
   int dimensionCheck;
   bool invalid = false;
-  int lineSize = strlen(line);
-  int dimensionCount = -1;
 
   DEBUG("findDimension()");
   float cubedRoot = pow(numberLines, 1.0/3);
   float squareRoot = (float)sqrt((double)numberLines);
 
   // exact cube number
-  if (cubedRoot == (int)cubedRoot) ) {
+  if (cubedRoot == (int)cubedRoot) {
       dimensionCheck = 3;
   } else if (squareRoot == (int)squareRoot){
       dimensionCheck = 2;
@@ -36,14 +40,21 @@ void findDimension(char line[], int dimension_extent[3], int numberLines)
       dimensionCheck = 1;
   }
 
+  // Why?
+  int dimensionCount = -1;
   if (line[0] != ' ') {dimensionCount++;}
-  for (int l = 0; l < lineSize - 1; l++)
+  int lineSize = strlen(line);
+  for (int i = 0; i < lineSize - 1; i++)
   {
-    if (line[l] == ' ' && line[l+1] != ' ') {dimensionCount++;}
+    // Amount of space-separations is how many dimensions??
+    if (line[i] == ' ' && line[i+1] != ' ') {dimensionCount++;}
   }
 
+  dimension_extent[2] = dimensionCount;
+  dimension_extent[0] = dimensionCount;
 
   switch (dimensionCount) {
+    // No spaces
     case 0:
       if (dimensionCheck == 3)
       {
@@ -60,24 +71,17 @@ void findDimension(char line[], int dimension_extent[3], int numberLines)
         dimension_extent[0] = 1;
         dimension_extent[1] = numberLines;
       }
-      dimension_extent[2] = 0;
       break;
     case 1:
-      dimension_extent[0] = 1;
       dimension_extent[1] = numberLines;
-      dimension_extent[2] = 1;
       break;
     case 2:
       if (dimensionCheck == 1) { invalid = true; }
-      dimension_extent[0] = 2;
       dimension_extent[1] = (int)squareRoot;
-      dimension_extent[2] = 2;
       break;
     case 3:
       if (dimensionCheck != 3) { invalid = true; }
-      dimension_extent[0] = 3;
       dimension_extent[1] = (int)cubedRoot;
-      dimension_extent[2] = 3;
       break;
     default:
       cout << "\nmemoryCheck(): ERORR in data input file: Unrecognised Format";

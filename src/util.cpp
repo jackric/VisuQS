@@ -1,4 +1,7 @@
-
+#include "util.h"
+#include <sys/stat.h>
+#include <string>
+using std::string;
 //From http://www.techbytes.ca/techbyte103.html
 bool FileExists(string strFilename) {
 	struct stat stFileInfo;

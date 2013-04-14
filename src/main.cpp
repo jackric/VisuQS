@@ -22,7 +22,6 @@ Revision:       $Revision: 1.5 $
 #include <GL/glut.h>
 #include <cmath>
 #include <cstring>
-#include <sys/stat.h>
 #include <cstdlib>
 #include <time.h>
 
@@ -161,7 +160,7 @@ for (int i = 0; i < data.extent; i++)
 }
 sort(vecDrawSites.begin(),vecDrawSites.end(),compareSiteSizes);
 #ifdef _DEBUG
-printf("@@@@@\n@@@@@ Generated optimized array, has size of %d countsites is %d\n", (int) vecDrawSites.size(),countSites);
+printf("@@@@@\n@@@@@ Generated optimized psiArray, has size of %d countsites is %d\n", (int) vecDrawSites.size(),countSites);
 #endif
 }
 
