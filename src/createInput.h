@@ -8,13 +8,10 @@ Environment:    Borland C++BuilderX-Personal V.1.0.0.1786
 Notes:          Must be run before VQS prog. can be used
 Revision:       1
 ****************************************************************************/
+#pragma once
 
 #include <fstream>
 #include <iostream>
 
-#ifndef CREATE_INPUT
-#define CREATE_INPUT
 
 void createInput();
-
-#endif // CREATE_INPUT

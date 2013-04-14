@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <fstream>
 //#include <cstdio>
@@ -6,8 +8,6 @@
 #include <vector>
 using std::vector;
 
-#ifndef READDATA_H
-#define READDATA_H
 
 void findDimension();
 struct psiArray;
@@ -24,5 +24,3 @@ struct psiArray
   float min;
 };
 psiArray readData ();
-
-#endif // READDATA_H
