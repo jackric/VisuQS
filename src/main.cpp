@@ -76,14 +76,6 @@ float fogColor[]= {incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_
 char origDir[256];
 
 
-struct drawSite
-{
-	int i;
-	int j;
-	int k;
-	float r,g,b;
-	float size;	
-};
 
 bool compareSiteSizes(const drawSite &ds1, const drawSite &ds2)
 {
