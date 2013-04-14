@@ -44,3 +44,6 @@ util.o:	util.cpp
 clean:
 	cd $(EXE_DIR)
 	rm *.o
+
+style:
+	astyle -n --style=allman *.cpp

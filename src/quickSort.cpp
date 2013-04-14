@@ -39,66 +39,66 @@ using namespace std;
 
 int q_sort(int left, int right, vector<float>& probs, vector<vector<int> >& coords)
 {
-  int l_hold, r_hold;
-  float pivot;
-  int pivotx, pivoty, pivotz;
+    int l_hold, r_hold;
+    float pivot;
+    int pivotx, pivoty, pivotz;
 
-  l_hold = left;
-  r_hold = right;
+    l_hold = left;
+    r_hold = right;
 
-  pivot = probs[left];
-  pivotx = coords[left][0];
-  pivoty = coords[left][1];
-  pivotz = coords[left][2];
+    pivot = probs[left];
+    pivotx = coords[left][0];
+    pivoty = coords[left][1];
+    pivotz = coords[left][2];
 
-  while (left < right)
-  {
-    while ((probs[right] >= pivot) && (left < right))
-      right--;
-    if (left != right)
+    while (left < right)
     {
-      probs[left] = probs[right];
+        while ((probs[right] >= pivot) && (left < right))
+            right--;
+        if (left != right)
+        {
+            probs[left] = probs[right];
 
-      coords[left][0] = coords[right][0];
-      coords[left][1] = coords[right][1];
-      coords[left][2] = coords[right][2];
+            coords[left][0] = coords[right][0];
+            coords[left][1] = coords[right][1];
+            coords[left][2] = coords[right][2];
 
-      left++;
+            left++;
+        }
+        while ((probs[left] <= pivot) && (left < right))
+            left++;
+        if (left != right)
+        {
+            probs[right] = probs[left];
+
+            coords[right][0] = coords[left][0];
+            coords[right][1] = coords[left][1];
+            coords[right][2] = coords[left][2];
+
+            right--;
+        }
     }
-    while ((probs[left] <= pivot) && (left < right))
-      left++;
-    if (left != right)
-    {
-      probs[right] = probs[left];
+    probs[left] = pivot;
+    coords[left][0] = pivotx;
+    coords[left][1] = pivoty;
+    coords[left][2] = pivotz;
 
-      coords[right][0] = coords[left][0];
-      coords[right][1] = coords[left][1];
-      coords[right][2] = coords[left][2];
-
-      right--;
-    }
-  }
-  probs[left] = pivot;
-  coords[left][0] = pivotx;
-  coords[left][1] = pivoty;
-  coords[left][2] = pivotz;
-
-  int temp = left;
-  left = l_hold;
-  right = r_hold;
-  if (left < temp)
-    q_sort(left, temp-1, probs, coords);
-  if (right > temp)
-    q_sort(temp+1, right, probs, coords);
+    int temp = left;
+    left = l_hold;
+    right = r_hold;
+    if (left < temp)
+        q_sort(left, temp-1, probs, coords);
+    if (right > temp)
+        q_sort(temp+1, right, probs, coords);
 }
 
 
 void quickSort(vector<float>& localProbs, vector<vector<int> >& localCoords, int array_size)
 {
-  #ifdef _DEBUG
+#ifdef _DEBUG
     cout << "\nquickSort(): $Revision: 1.2 $";
-  #endif
+#endif
 
-  q_sort(0, array_size - 1, localProbs, localCoords);
+    q_sort(0, array_size - 1, localProbs, localCoords);
 }
 
