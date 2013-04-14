@@ -1,5 +1,0 @@
-
-Have worked on some procedures to generate an array of ONLY what needs
-rendering, called genOptimizedArray.
-
-problem is it wont compile because it thinks "data" isnt in the scope....
