@@ -996,27 +996,6 @@ void truncateExp(char* address)
     }
 }
 
-void removeZeros(char* address)
-{
-    char* zeroPointer;
-    bool foundEnd = false;
-    char* p;
-
-    for(p = address; *p != '\0'; p++) // Find start of trailing zeros
-    {
-        if( (*p == '0') && !foundEnd )
-        {
-            zeroPointer = p;
-            foundEnd = true;
-        }
-        else if(*p != '0')
-            foundEnd = false;
-    }
-    if(*(zeroPointer-1) == '.') // Prevents 90.0000 from becoming 90. rather than 90.0
-        *(zeroPointer+1) = '\0';
-    else
-        *zeroPointer = '\0';
-}
 
 void drawColourScale()
 {

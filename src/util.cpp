@@ -30,3 +30,20 @@ bool FileExists(string strFilename)
 
     return(blnReturn);
 }
+
+void removeZeros(char address[])
+{
+  int i;
+
+    for(i=0; address[i] != '\0'; i++) // Find start of trailing zeros
+    {
+        if(address[i] == '0')
+        {
+          break;
+        }
+    }
+    if(address[i] == '.') // Prevents 90.0000 from becoming 90. rather than 90.0
+        address[i+1] = '\0';
+    else
+        address[i] = '\0';
+}
