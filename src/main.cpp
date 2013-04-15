@@ -399,13 +399,25 @@ public:
         glPopMatrix();
     }
 
+    void maybeColorize(float prob, float max, float *r, float *g, float *b)
+    {
+        if(incommands.getcolourMethod())
+        {
+            float hue;
+            hue = 360.0 * (1.0-( log(max)/log(prob) ));
+            hue = hue*(1.0 - cutFrac);
 
+            hsv_to_rgb(&rgb[0], &hue);
+            *r = rgb[0];
+            *g = rgb[1];
+            *b = rgb[2];
+        }
+    }
 
     void draw(float r, float g, float b, float prob)
     {
         max = data.max;
         min = data.min;
-        float hue;
         float size, reducedMax, opacity;
 
         if (visMeth == 'C') // Draw Cube
@@ -415,16 +427,7 @@ public:
             size = size/(data.extent*reducedMax); // Scales cubes to within cells of side-length reducedMax
             size = size * (1 + overlap*data.extent); // Increases size by arbitrary amount to incite overlapping
 
-            if(incommands.getcolourMethod())
-            {
-                hue = 360.0 * (1.0-( log(max)/log(prob) ));
-                hue = hue*(1.0 - cutFrac);
-
-                hsv_to_rgb(&rgb[0], &hue);
-                r = rgb[0];
-                g = rgb[1];
-                b = rgb[2];
-            }
+            Cell::maybeColorize(prob, max, &r, &g, &b);
 
             glColor3f(r, g, b);
             glutSolidCube(size);
@@ -445,16 +448,7 @@ public:
 
             glPushMatrix();
 
-            if(incommands.getcolourMethod())
-            {
-                hue = 360.0*(1.0-( log(max)/log(prob) ));
-                hue = hue*(1.0 - cutFrac);
-
-                hsv_to_rgb(&rgb[0], &hue);
-                r = rgb[0];
-                g = rgb[1];
-                b = rgb[2];
-            }
+            Cell::maybeColorize(prob, max, &r, &g, &b);
 
             glRotatef( 90.0, 1.0, 0.0, 0.0 );
             glColor3f(r, g, b);
@@ -478,17 +472,7 @@ public:
             reducedMax = log(pow((double)max,1.0/2));
 
 
-            if(incommands.getcolourMethod())
-            {
-                hue = 360.0*(1.0-( log(max)/log(prob) ));
-                hue = hue*(1.0 - cutFrac);
-
-                hsv_to_rgb(&rgb[0], &hue);
-                hsv_to_rgb(&rgb[0], &hue);
-                r = rgb[0];
-                g = rgb[1];
-                b = rgb[2];
-            }
+            Cell::maybeColorize(prob, max, &r, &g, &b);
 
             glColor4f(r, g, b, reducedMax/opacity);
             glutSolidCube(size);
