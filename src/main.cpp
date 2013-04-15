@@ -393,20 +393,6 @@ public:
     }
 
 
-    void maybeColorize(float prob, float max, float *r, float *g, float *b)
-    {
-        if(incommands.getcolourMethod())
-        {
-            float hue;
-            hue = 360.0 * (1.0-( log(max)/log(prob) ));
-            hue = hue*(1.0 - cutFrac);
-
-            hsv_to_rgb(&rgb[0], &hue);
-            *r = rgb[0];
-            *g = rgb[1];
-            *b = rgb[2];
-        }
-    }
 
     void draw(float r, float g, float b, float prob)
     {
@@ -478,6 +464,21 @@ public:
         {
             cout<<"\ncell(): ERROR --- Visualisation method parameter not recognised";
             quit(1);
+        }
+    }
+private:
+    void maybeColorize(float prob, float max, float *r, float *g, float *b)
+    {
+        if(incommands.getcolourMethod())
+        {
+            float hue;
+            hue = 360.0 * (1.0-( log(max)/log(prob) ));
+            hue = hue*(1.0 - cutFrac);
+
+            hsv_to_rgb(&rgb[0], &hue);
+            *r = rgb[0];
+            *g = rgb[1];
+            *b = rgb[2];
         }
     }
 };
