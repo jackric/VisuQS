@@ -380,24 +380,6 @@ public:
         visMeth = incommands.getvisMethod();
     }
 
-    void draw_opt(float r, float g, float b, float size)
-    {
-        // Increases size by arbitrary amount to incite overlapping
-
-        glPushMatrix();
-
-
-
-        glRotatef( 90.0, 1.0, 0.0, 0.0 );
-        glColor3f(r, g, b);
-        GLUquadricObj*  q = gluNewQuadric ( );
-        gluQuadricDrawStyle ( q, GLU_FILL );
-        gluQuadricNormals   ( q, GLU_SMOOTH );
-        gluSphere ( q, size, 20, 20 );
-        gluDeleteQuadric ( q );
-
-        glPopMatrix();
-    }
 
     void maybeColorize(float prob, float max, float *r, float *g, float *b)
     {
@@ -629,85 +611,6 @@ void drawCrystal()
 #endif
 }
 
-void drawCrystalOptimized() //use only for bubbles, 3D rendering
-{
-    float r,g,b;
-    float translationFactor = (1.0/(float)data.extent) + ((float)data.extent-3.0)/(2.0*(float)data.extent);
-    float hue;
-    int x, y, z;
-    int countDrawn = 0;
-
-    DEBUG("drawCrystalOptimized()");
-
-
-    glPushMatrix();
-
-    glTranslatef( -translationFactor, -translationFactor, -translationFactor); // translates entire plot to keep
-
-
-    r = 0.0;
-    g = 0.0;
-    b = 1.0;
-    int i,j,k;
-    float size;
-    int cnt;
-
-
-    for(cnt=0; cnt<=vecDrawSites.size(); cnt++)
-    {
-        i = vecDrawSites[cnt].i;
-        j = vecDrawSites[cnt].j;
-        k = vecDrawSites[cnt].k;
-        r = vecDrawSites[cnt].r;
-        g = vecDrawSites[cnt].g;
-        b = vecDrawSites[cnt].b;
-        size = vecDrawSites[cnt].size;
-
-        glPushMatrix ();
-        glTranslatef ((float) i / data.extent,(float) j / data.extent,(float) k / data.extent);
-
-        unit.draw_opt (r, g, b, size);
-        countDrawn++;
-
-
-        glPopMatrix ();
-
-
-    }
-
-
-
-
-
-    glPopMatrix();
-
-    glColor3f(incommands.gettext_r(), incommands.gettext_g(), incommands.gettext_b());
-
-    if(data.dimension == 3 && incommands.getcolourMethod() && !incommands.getperiodic() )
-        glutWireCube (1.0);
-    else if(data.dimension == 3 && !incommands.getcolourMethod() && !incommands.getperiodic() )
-    {
-        glBegin(GL_LINE_STRIP);       // Plots wire-cube with spaces for the z-scales
-        glVertex3f(-0.5, 0.5, 0.5);
-        glVertex3f(-0.5, -0.5, 0.5);
-        glVertex3f(0.5, -0.5, 0.5);
-        glVertex3f(0.5, 0.5, 0.5);
-        glVertex3f(-0.5, 0.5, 0.5);
-        glVertex3f(-0.5, 0.5, -0.5);
-        glVertex3f(-0.5, -0.5, -0.5);
-        glVertex3f(0.5, -0.5, -0.5);
-        glVertex3f(0.5, 0.5, -0.5);
-        glVertex3f(0.5, 0.5, 0.5);
-        glEnd();
-        glBegin(GL_LINES);
-        glVertex3f(-0.5, 0.5, -0.5);
-        glVertex3f(0.5, 0.5, -0.5);
-        glEnd();
-    }
-#ifdef _DEBUG
-    printf("##\n## DrawCrystalOptimized finished, drew %d sites, out of %d\n",countDrawn,data.extent*data.extent*data.extent);
-#endif
-}
 
 
 void drawZscale() // Needs to be plotted after 'crystal' to avoid blending in with the data
@@ -931,14 +834,7 @@ void render()
     }
     else
     {
-        if( data.dimension == 3 && incommands.getvisMethod() == 'B' )
-        {
-            drawCrystalOptimized();
-        }
-        else
-        {
-            drawCrystal();
-        }
+        drawCrystal();
 
         if( !incommands.getcolourMethod() && (data.dimension == 3) )
             drawZscale();
