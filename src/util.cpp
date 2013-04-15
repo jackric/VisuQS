@@ -33,13 +33,13 @@ bool FileExists(string strFilename)
 
 void removeZeros(char address[])
 {
-  int i;
+    int i;
 
     for(i=0; address[i] != '\0'; i++) // Find start of trailing zeros
     {
         if(address[i] == '0')
         {
-          break;
+            break;
         }
     }
     if(address[i] == '.') // Prevents 90.0000 from becoming 90. rather than 90.0
