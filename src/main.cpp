@@ -367,7 +367,7 @@ void accPerspective(GLdouble fovy, GLdouble aspect, GLdouble d_near, GLdouble d_
     accFrustum (left, right, bottom, top, d_near, d_far, pixdx, pixdy, eyedx, eyedy, focus);
 }
 
-class cell
+class Cell
 {
 private:
     char visMeth;
@@ -375,7 +375,7 @@ private:
     float min;
 
 public:
-    cell() // constructor
+    Cell() // constructor
     {
         visMeth = incommands.getvisMethod();
     }
@@ -504,7 +504,7 @@ public:
     }
 };
 
-cell unit;
+Cell unit;
 
 void drawCrystal()
 {
