@@ -370,14 +370,26 @@ void accPerspective(GLdouble fovy, GLdouble aspect, GLdouble d_near, GLdouble d_
 class Cell
 {
 private:
-    char visMeth;
+    DrawStyles::Enum visMeth;
     float max;
     float min;
 
 public:
     Cell() // constructor
     {
-        visMeth = incommands.getvisMethod();
+        switch(incommands.getvisMethod())
+        {
+        case 'B':
+            visMeth = DrawStyles::Bubbles;
+            break;
+        case 'C':
+            visMeth = DrawStyles::Cubes;
+            break;
+        case 'F':
+            visMeth = DrawStyles::Fog;
+            break;
+        }
+
     }
 
 
@@ -402,7 +414,7 @@ public:
         min = data.min;
         float size, reducedMax, opacity;
 
-        if (visMeth == 'C') // Draw Cube
+        if (visMeth == DrawStyles::Cubes)
         {
             size = (float)pow((double)prob, 1.0/3); // size = side-length of cube of volume prob
             reducedMax = (float)pow((double)max, 1.0/3);
@@ -420,7 +432,7 @@ public:
                 glutWireCube(size);
             }
         }
-        else if (visMeth == 'B') // Draw Bubble
+        else if (visMeth == DrawStyles::Bubbles) // Draw Bubble
         {
             size = (prob/max)/((4.0/3)*pi);
             size = (float)pow((double)size, 1.0/3);
@@ -442,7 +454,7 @@ public:
 
             glPopMatrix();
         }
-        else if (visMeth == 'F') // Draw Fog-cube
+        else if (visMeth == DrawStyles::Fog)
         {
             size = 1.0/data.extent;
 

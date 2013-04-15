@@ -32,3 +32,9 @@ struct drawSite
 	float r,g,b;
 	float size;	
 };
+
+namespace DrawStyles {
+    enum Enum {
+        Bubbles, Fog, Cubes
+    };
+};
