@@ -412,6 +412,7 @@ public:
             glColor3f(r, g, b);
             glutSolidCube(size);
 
+            // Black outline on sites that are really large relatively
             if ( (float)pow((double)prob, 1.0/2) > ((float)pow((double)data.max, 1.0/2)*0.36788) ) // 1/e
             {
                 glColor3f(0.0, 0.0, 0.0);
@@ -462,7 +463,7 @@ public:
         }
         else
         {
-            cout<<"\ncell(): ERROR --- Visualisation method parameter not recognised";
+            cout<<"\ncell(): error --- visualisation method parameter not recognised";
             quit(1);
         }
     }
@@ -485,13 +486,106 @@ private:
 
 Cell unit;
 
+void draw3d()
+{
+    int x, y, z;
+    float hue;
+    for (int i=0; i<data.extent; i++)
+    {
+        for (int j=0; j<data.extent; j++)
+        {
+            for (int k=0; k<data.extent; k++)
+            {
+                glPushMatrix();
+
+                if(incommands.getvisMethod() == 'F')
+                {
+                    x = data.coords3d[i][j][k][0];
+                    y = data.coords3d[i][j][k][1];
+                    z = data.coords3d[i][j][k][2];
+                    glTranslatef( (float)x/data.extent, (float)y/data.extent, (float)z/data.extent );
+                }
+                else // NOT Fog
+                {
+                    glTranslatef( (float)i/data.extent, (float)j/data.extent, (float)k/data.extent );
+                }
+
+                if(incommands.getvisMethod() == 'F') // Decides colour if 'depth-graduated'
+                    hue = (data.extent-(z+1))*(360.0/data.extent); // Fog is sorted and uses
+                else                                             // different depth coordinate, 'z'
+                    hue = (data.extent-(k+1))*(360.0/data.extent);
+
+                float rgb[3];
+                hue = hue*(1.0 - cutFrac);
+                hsv_to_rgb(&rgb[0], &hue);
+                float r = rgb[0];
+                float g = rgb[1];
+                float b = rgb[2];
+
+                //Test the current site, if prob greater than threshold then draw it.
+                if (data.matrix3d[i][j][k] > threshold)
+                {
+                    unit.draw(r, g, b, data.matrix3d[i][j][k]);
+                }
+
+                glPopMatrix();
+            }
+        }
+    }
+
+}
+
+/*
+void draw2d()
+{
+    for (int i=0; i<data.extent; i++)
+    {
+            for (int j=0; j<data.extent; j++) {
+                    glPushMatrix();
+
+                    if(incommands.getvisMethod() == 'F')
+                    {
+                        x = data.coords2d[i][j][0];
+                        y = data.coords2d[i][j][1];
+                        glTranslatef( (float)x/data.extent, (float)y/data.extent, 0.0);
+                    }
+                    else // NOT Fog
+                        glTranslatef( (float)i/data.extent, (float)j/data.extent, 0.0);
+
+                    if (data.matrix2d[i][j] > threshold)
+                        unit.draw(r, g, b, data.matrix2d[i][j]);
+
+                    glPopMatrix();
+    }
+    }
+
+}
+
+void draw1d()
+{
+    for (int i=0; i<data.extent; i++) {
+    glPushMatrix();
+
+    if(incommands.getvisMethod() == 'F')
+    {
+        x = data.coords1d[i];
+        glTranslatef( (float)x/data.extent, 0.0, 0.0);
+    }
+    else // NOT Fog
+        glTranslatef( (float)i/data.extent, 0.0, 0.0);
+
+    if (data.matrix1d[i] > threshold)
+        unit.draw(r, g, b, data.matrix1d[i]);
+    glPopMatrix();
+  }
+
+}
+*/
+
 void drawCrystal()
 {
     float r,g,b;
     float translationFactor = (1.0/(float)data.extent) + ((float)data.extent-3.0)/(2.0*(float)data.extent);
-    float hue;
-    int x, y, z;
-    int countDrawn = 0;
 
 #ifdef _DEBUG
     cout << "\ndrawCrystal(): $Revision: 1.5 $"<<flush;
@@ -511,87 +605,22 @@ void drawCrystal()
     g = 0.0;
     b = 1.0;
 
-    for (int i=0; i<data.extent; i++)
+    switch (data.dimension)
     {
-        if ( data.dimension > 1 )
-        {
-            for (int j=0; j<data.extent; j++)
-            {
-                if ( data.dimension > 2 ) // 3D case
-                {
-                    for (int k=0; k<data.extent; k++)
-                    {
-                        glPushMatrix();
-
-                        if(incommands.getvisMethod() == 'F')
-                        {
-                            x = data.coords3d[i][j][k][0];
-                            y = data.coords3d[i][j][k][1];
-                            z = data.coords3d[i][j][k][2];
-                            glTranslatef( (float)x/data.extent, (float)y/data.extent, (float)z/data.extent );
-                        }
-                        else // NOT Fog
-                        {
-                            glTranslatef( (float)i/data.extent, (float)j/data.extent, (float)k/data.extent );
-                        }
-
-                        if(incommands.getvisMethod() == 'F') // Decides colour if 'depth-graduated'
-                            hue = (data.extent-(z+1))*(360.0/data.extent); // Fog is sorted and uses
-                        else                                             // different depth coordinate, 'z'
-                            hue = (data.extent-(k+1))*(360.0/data.extent);
-
-                        hue = hue*(1.0 - cutFrac);
-                        hsv_to_rgb(&rgb[0], &hue);
-                        r = rgb[0];
-                        g = rgb[1];
-                        b = rgb[2];
-
-                        //Test the current site, if prob greater than threshold then draw it.
-                        if (data.matrix3d[i][j][k] > threshold)
-                        {
-                            unit.draw(r, g, b, data.matrix3d[i][j][k]);
-                            countDrawn++;
-                        }
-
-                        glPopMatrix();
-                    }
-                }
-                else // 2D case
-                {
-                    glPushMatrix();
-
-                    if(incommands.getvisMethod() == 'F')
-                    {
-                        x = data.coords2d[i][j][0];
-                        y = data.coords2d[i][j][1];
-                        glTranslatef( (float)x/data.extent, (float)y/data.extent, 0.0);
-                    }
-                    else // NOT Fog
-                        glTranslatef( (float)i/data.extent, (float)j/data.extent, 0.0);
-
-                    if (data.matrix2d[i][j] > threshold)
-                        unit.draw(r, g, b, data.matrix2d[i][j]);
-
-                    glPopMatrix();
-                }
-            }
-        }
-        else // 1D case
-        {
-            glPushMatrix();
-
-            if(incommands.getvisMethod() == 'F')
-            {
-                x = data.coords1d[i];
-                glTranslatef( (float)x/data.extent, 0.0, 0.0);
-            }
-            else // NOT Fog
-                glTranslatef( (float)i/data.extent, 0.0, 0.0);
-
-            if (data.matrix1d[i] > threshold)
-                unit.draw(r, g, b, data.matrix1d[i]);
-            glPopMatrix();
-        }
+    case 3:
+        draw3d();
+        break;
+        /*
+        case 2:
+        draw2d();
+        break;
+        case 1:
+        draw1d();
+        break;
+        */
+    default:
+        cout<<"\ncell(): error --- dimension should be 1-3";
+        quit(1);
     }
 
     glPopMatrix();
@@ -619,9 +648,6 @@ void drawCrystal()
         glVertex3f(0.5, 0.5, -0.5);
         glEnd();
     }
-#ifdef _DEBUG
-    printf("##\n## DrawCrystal finished, drew %d sites, out of %d\n",countDrawn,data.extent*data.extent*data.extent);
-#endif
 }
 
 
