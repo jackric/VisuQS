@@ -394,7 +394,7 @@ public:
 
 
 
-    void draw(float r, float g, float b, float prob)
+    void draw(float rgb[3], float prob)
     {
         max = data.max;
         min = data.min;
@@ -407,9 +407,9 @@ public:
             size = size/(data.extent*reducedMax); // Scales cubes to within cells of side-length reducedMax
             size = size * (1 + overlap*data.extent); // Increases size by arbitrary amount to incite overlapping
 
-            Cell::maybeColorize(prob, max, &r, &g, &b);
+            Cell::maybeColorize(prob, max, rgb);
 
-            glColor3f(r, g, b);
+            glColor3f(rgb[0], rgb[1], rgb[2]);
             glutSolidCube(size);
 
             // Black outline on sites that are really large relatively
@@ -429,10 +429,10 @@ public:
 
             glPushMatrix();
 
-            Cell::maybeColorize(prob, max, &r, &g, &b);
+            Cell::maybeColorize(prob, max, rgb);
 
             glRotatef( 90.0, 1.0, 0.0, 0.0 );
-            glColor3f(r, g, b);
+            glColor3f(rgb[0], rgb[1], rgb[2]);
             GLUquadricObj*  q = gluNewQuadric ( );
             gluQuadricDrawStyle ( q, GLU_FILL );
             gluQuadricNormals   ( q, GLU_SMOOTH );
@@ -453,9 +453,9 @@ public:
             reducedMax = log(pow((double)max,1.0/2));
 
 
-            Cell::maybeColorize(prob, max, &r, &g, &b);
+            Cell::maybeColorize(prob, max, rgb);
 
-            glColor4f(r, g, b, reducedMax/opacity);
+            glColor4f(rgb[0], rgb[1], rgb[2], reducedMax/opacity);
             glutSolidCube(size);
 
             glDisable(GL_BLEND);
@@ -468,7 +468,7 @@ public:
         }
     }
 private:
-    void maybeColorize(float prob, float max, float *r, float *g, float *b)
+    void maybeColorize(float prob, float max, float rgb[3])
     {
         if(incommands.getcolourMethod())
         {
@@ -476,10 +476,7 @@ private:
             hue = 360.0 * (1.0-( log(max)/log(prob) ));
             hue = hue*(1.0 - cutFrac);
 
-            hsv_to_rgb(&rgb[0], &hue);
-            *r = rgb[0];
-            *g = rgb[1];
-            *b = rgb[2];
+            hsv_to_rgb(rgb, &hue);
         }
     }
 };
@@ -518,14 +515,11 @@ void draw3d()
                 float rgb[3];
                 hue = hue*(1.0 - cutFrac);
                 hsv_to_rgb(&rgb[0], &hue);
-                float r = rgb[0];
-                float g = rgb[1];
-                float b = rgb[2];
 
                 //Test the current site, if prob greater than threshold then draw it.
                 if (data.matrix3d[i][j][k] > threshold)
                 {
-                    unit.draw(r, g, b, data.matrix3d[i][j][k]);
+                    unit.draw(rgb, data.matrix3d[i][j][k]);
                 }
 
                 glPopMatrix();
