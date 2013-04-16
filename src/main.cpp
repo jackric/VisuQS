@@ -288,8 +288,9 @@ public:
         min = data.min;
         float size, reducedMax, opacity;
 
-        if (visMeth == DrawStyles::Cubes)
+        switch(visMeth)
         {
+        case DrawStyles::Cubes:
             size = (float)pow((double)prob, 1.0/3); // size = side-length of cube of volume prob
             reducedMax = (float)pow((double)max, 1.0/3);
             size = size/(data.extent*reducedMax); // Scales cubes to within cells of side-length reducedMax
@@ -306,9 +307,8 @@ public:
                 glColor3f(0.0, 0.0, 0.0);
                 glutWireCube(size);
             }
-        }
-        else if (visMeth == DrawStyles::Bubbles) // Draw Bubble
-        {
+            break;
+        case DrawStyles::Bubbles:
             size = (prob/max)/((4.0/3)*pi);
             size = (float)pow((double)size, 1.0/3);
             size = size/(data.extent);
@@ -328,9 +328,8 @@ public:
             gluDeleteQuadric ( q );
 
             glPopMatrix();
-        }
-        else if (visMeth == DrawStyles::Fog)
-        {
+            break;
+        case DrawStyles::Fog:
             size = 1.0/data.extent;
 
             glDisable(GL_DEPTH_TEST);
@@ -348,9 +347,8 @@ public:
 
             glDisable(GL_BLEND);
             glEnable(GL_DEPTH_TEST);
-        }
-        else
-        {
+            break;
+        default:
             cout<<"\ncell(): error --- visualisation method parameter not recognised";
             quit(1);
         }
