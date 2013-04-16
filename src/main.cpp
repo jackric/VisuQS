@@ -40,6 +40,10 @@ using namespace std;
 
 // Global objects, structures & variables
 Input incommands;
+bool flip = incommands.getflip();
+DrawStyles::Enum visMeth;
+
+
 psiArray data;
 
 int visStatus;
@@ -48,7 +52,7 @@ float angle, angle2, radius;
 const double pi = 3.141592654;
 #define PI_ 3.14159265358979323846
 int counter, flycounter;
-bool flip = incommands.getflip();
+
 float rgb[3];
 int end;
 bool flownflag;
@@ -89,7 +93,7 @@ void init(void)
     glLightfv(GL_LIGHT0, GL_DIFFUSE, source_light);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
     glEnable(GL_LIGHT0);
-    if(incommands.getvisMethod() == 'B')
+    if(visMeth == DrawStyles::Bubbles)
     {
         glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
         glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
@@ -266,25 +270,13 @@ void accPerspective(GLdouble fovy, GLdouble aspect, GLdouble d_near, GLdouble d_
 class Cell
 {
 private:
-    DrawStyles::Enum visMeth;
     float max;
     float min;
 
 public:
     Cell() // constructor
     {
-        switch(incommands.getvisMethod())
-        {
-        case 'B':
-            visMeth = DrawStyles::Bubbles;
-            break;
-        case 'C':
-            visMeth = DrawStyles::Cubes;
-            break;
-        case 'F':
-            visMeth = DrawStyles::Fog;
-            break;
-        }
+
 
     }
 
@@ -391,7 +383,7 @@ void draw3d()
             {
                 glPushMatrix();
 
-                if(incommands.getvisMethod() == 'F')
+                if(visMeth == DrawStyles::Fog)
                 {
                     x = data.coords3d[i][j][k][0];
                     y = data.coords3d[i][j][k][1];
@@ -403,7 +395,7 @@ void draw3d()
                     glTranslatef( (float)i/data.extent, (float)j/data.extent, (float)k/data.extent );
                 }
 
-                if(incommands.getvisMethod() == 'F') // Decides colour if 'depth-graduated'
+                if(visMeth == DrawStyles::Fog) // Decides colour if 'depth-graduated'
                     hue = (data.extent-(z+1))*(360.0/data.extent); // Fog is sorted and uses
                 else                                             // different depth coordinate, 'z'
                     hue = (data.extent-(k+1))*(360.0/data.extent);
@@ -894,9 +886,9 @@ void makeFileName(char* address)
     strcat(address, dimension);
     strcat(address, "-");
 
-    if(incommands.getvisMethod() == 'F')
+    if(visMeth == DrawStyles::Fog)
         strcat(address, "F");
-    else if(incommands.getvisMethod() == 'C')
+    else if(visMeth == DrawStyles::Cubes)
         strcat(address, "C");
     else
         strcat(address, "B");
@@ -1719,22 +1711,6 @@ void mouseButton(int value)
     case 2: //exit
         quit(0);
         break;
-        /*case 3:
-        if (visMeth == 'C')
-        {
-        visMeth = 'B';
-        break;
-        }
-        if (visMeth == 'B')
-        {
-        visMeth = 'F';
-        break;
-        }
-        else
-        {
-        visMeth = 'C';
-        break;
-        }*/
     }
 }
 
@@ -1784,6 +1760,18 @@ void visFunc(int stat)
 int main(int argcp, char** argv)
 {
     DEBUG("main()");
+    switch(incommands.getvisMethod())
+    {
+    case 'B':
+        visMeth = DrawStyles::Bubbles;
+        break;
+    case 'C':
+        visMeth = DrawStyles::Cubes;
+        break;
+    case 'F':
+        visMeth = DrawStyles::Fog;
+        break;
+    }
 
 #ifndef _WINDOWS
 #ifndef _LINUX
