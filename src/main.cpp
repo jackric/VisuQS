@@ -698,20 +698,23 @@ void drawZscale() // Needs to be plotted after 'crystal' to avoid blending in wi
     glPopMatrix();
 }
 
-void adjustRounding(float *coord, float *rounding)
+int adjustRounding(float coord)
 {
-    if (*coord < 0)
+    if (coord < 0)
     {
-        *rounding = *coord - 0.5;
+        return (int) coord - 0.5;
     }
-    else if (*coord > 0 )
+    else if (coord > 0 )
     {
-        *rounding = *coord + 0.5;
+        return (int) coord + 0.5;
     }
 }
 
 void adjustRange(float coord, int base, int *from, int *until)
 {
+
+    *from = base - 1;
+    *until = base + 2;
     if(radius > 0)
     {
         if(coord > 0)
@@ -753,45 +756,8 @@ void adjustRange(float coord, int base, int *from, int *until)
 
 void render()
 {
-    int x, y, z;
-    float xCoord, yCoord, zCoord;
-    float roundingX, roundingY, roundingZ;
-    int intX, intY, intZ;
-    int fromX, fromY, fromZ;
-    int untilX, untilY, untilZ;
 
-#ifdef _DEBUG
-    cout << "\nrender(): $Revision: 1.5 $";
-#endif
-
-    xCoord = radius*sin((pi/180.0)*angle2)*sin((pi/180.0)*angle) - incommands.getx_tran();
-    yCoord = radius*cos((pi/180.0)*angle2) - incommands.gety_tran();
-    zCoord = radius*sin((pi/180.0)*angle2)*cos((pi/180.0)*angle) - incommands.getz_tran();
-
-
-
-    adjustRounding(&xCoord, &roundingX);
-    adjustRounding(&yCoord, &roundingY);
-    adjustRounding(&zCoord, &roundingZ);
-
-
-    intX = (int)roundingX;
-    intY = (int)roundingY;
-    intZ = (int)roundingZ;
-
-    fromX = intX - 1;
-    untilX = intX + 2;
-    fromY = intY - 1;
-    untilY = intY + 2;
-    fromZ = intZ - 1;
-    untilZ = intZ + 2;
-
-
-    adjustRange(xCoord, intX, &fromX, &untilX);
-    adjustRange(yCoord, intY, &fromY, &untilY);
-    adjustRange(zCoord, intZ, &fromZ, &untilZ);
-
-
+    DEBUG("render()");
 
     glPushMatrix();
 
@@ -806,11 +772,27 @@ void render()
 
     if(incommands.getperiodic()) // Plots crystal periodically
     {
-        for(x = fromX; x < untilX; x++)
+        float xCoord, yCoord, zCoord;
+        int intX, intY, intZ;
+        int fromX, fromY, fromZ;
+        int untilX, untilY, untilZ;
+        xCoord = radius*sin((pi/180.0)*angle2)*sin((pi/180.0)*angle) - incommands.getx_tran();
+        yCoord = radius*cos((pi/180.0)*angle2) - incommands.gety_tran();
+        zCoord = radius*sin((pi/180.0)*angle2)*cos((pi/180.0)*angle) - incommands.getz_tran();
+
+        intX = adjustRounding(xCoord);
+        intY = adjustRounding(yCoord);
+        intZ = adjustRounding(zCoord);
+
+
+        adjustRange(xCoord, intX, &fromX, &untilX);
+        adjustRange(yCoord, intY, &fromY, &untilY);
+        adjustRange(zCoord, intZ, &fromZ, &untilZ);
+        for(int x = fromX; x < untilX; x++)
         {
-            for(y = fromY; y < untilY; y++)
+            for(int y = fromY; y < untilY; y++)
             {
-                for(z = fromZ; z < untilZ; z++)
+                for(int z = fromZ; z < untilZ; z++)
                 {
                     glPushMatrix();
                     glTranslatef((float)x, (float)y, (float)z);
