@@ -698,6 +698,59 @@ void drawZscale() // Needs to be plotted after 'crystal' to avoid blending in wi
     glPopMatrix();
 }
 
+void adjustRounding(float *coord, float *rounding)
+{
+    if (*coord < 0)
+    {
+        *rounding = *coord - 0.5;
+    }
+    else if (*coord > 0 )
+    {
+        *rounding = *coord + 0.5;
+    }
+}
+
+void adjustRange(float coord, int base, int *from, int *until)
+{
+    if(radius > 0)
+    {
+        if(coord > 0)
+        {
+            *from = base - 2;
+            *until = base + 2;
+        }
+        else if(coord < 0)
+        {
+            *from = base - 1;
+            *until = base + 3;
+        }
+        else
+        {
+            *from = base - 2;
+            *until = base + 3;
+        }
+    }
+    else
+    {
+        if(coord > 0)
+        {
+            *from = base - 1;
+            *until = base + 3;
+        }
+        else if(coord < 0)
+        {
+            *from = base - 2;
+            *until = base + 2;
+        }
+        else
+        {
+            *from = base - 2;
+            *until = base + 3;
+        }
+    }
+
+}
+
 void render()
 {
     int x, y, z;
@@ -715,20 +768,12 @@ void render()
     yCoord = radius*cos((pi/180.0)*angle2) - incommands.gety_tran();
     zCoord = radius*sin((pi/180.0)*angle2)*cos((pi/180.0)*angle) - incommands.getz_tran();
 
-    if(xCoord < 0)
-        roundingX = xCoord - 0.5;
-    else if(xCoord > 0)
-        roundingX = xCoord + 0.5;
 
-    if(yCoord < 0)
-        roundingY = yCoord - 0.5;
-    else if(yCoord > 0)
-        roundingY = yCoord + 0.5;
 
-    if(zCoord < 0)
-        roundingZ = zCoord - 0.5;
-    else if(zCoord > 0)
-        roundingZ = zCoord + 0.5;
+    adjustRounding(&xCoord, &roundingX);
+    adjustRounding(&yCoord, &roundingY);
+    adjustRounding(&zCoord, &roundingZ);
+
 
     intX = (int)roundingX;
     intY = (int)roundingY;
@@ -741,102 +786,12 @@ void render()
     fromZ = intZ - 1;
     untilZ = intZ + 2;
 
-    if(radius > 0)
-    {
-        if(xCoord > 0)
-        {
-            fromX = intX - 2;
-            untilX = intX + 2;
-        }
-        else if(xCoord < 0)
-        {
-            fromX = intX - 1;
-            untilX = intX + 3;
-        }
-        else
-        {
-            fromX = intX - 2;
-            untilX = intX + 3;
-        }
-        if(yCoord > 0)
-        {
-            fromY = intY - 2;
-            untilY = intY + 2;
-        }
-        else if(yCoord < 0)
-        {
-            fromY = intY - 1;
-            untilY = intY + 3;
-        }
-        else
-        {
-            fromY = intY - 2;
-            untilY = intY + 3;
-        }
-        if(zCoord > 0)
-        {
-            fromZ = intZ - 2;
-            untilZ = intZ + 2;
-        }
-        else if(zCoord < 0)
-        {
-            fromZ = intZ - 1;
-            untilZ = intZ + 3;
-        }
-        else
-        {
-            fromZ = intZ - 2;
-            untilZ = intZ + 3;
-        }
-    }
-    else // radius <= 0
-    {
-        if(xCoord > 0)
-        {
-            fromX = intX - 1;
-            untilX = intX + 3;
-        }
-        else if(xCoord < 0)
-        {
-            fromX = intX - 2;
-            untilX = intX + 2;
-        }
-        else
-        {
-            fromX = intX - 2;
-            untilX = intX +3;
-        }
-        if(yCoord > 0)
-        {
-            fromY = intY - 1;
-            untilY = intY + 3;
-        }
-        else if(yCoord < 0)
-        {
-            fromY = intY - 2;
-            untilY = intY + 2;
-        }
-        else
-        {
-            fromY = intY - 2;
-            untilY = intY +3;
-        }
-        if(zCoord > 0)
-        {
-            fromZ = intZ - 1;
-            untilZ = intZ + 3;
-        }
-        else if(zCoord < 0)
-        {
-            fromZ = intZ - 2;
-            untilZ = intZ + 2;
-        }
-        else
-        {
-            fromZ = intZ - 2;
-            untilZ = intZ + 3;
-        }
-    }
+
+    adjustRange(xCoord, intX, &fromX, &untilX);
+    adjustRange(yCoord, intY, &fromY, &untilY);
+    adjustRange(zCoord, intZ, &fromZ, &untilZ);
+
+
 
     glPushMatrix();
 
