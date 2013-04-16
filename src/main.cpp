@@ -115,18 +115,7 @@ void init(void)
 
     if(incommands.getthreshold() == 1.0)
     {
-        if(data.dimension == 3)
-        {
-            threshold = (float)1.0/(pow((double)data.extent, 3));
-        }
-        else if(data.dimension == 2)
-        {
-            threshold = (float)1.0/(pow((double)data.extent, 2));
-        }
-        else
-        {
-            threshold = 1.0/data.extent;
-        }
+        threshold = (float)1.0/(pow((double)data.extent, data.dimension));
     }
     else
     {
