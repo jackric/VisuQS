@@ -47,3 +47,35 @@ void removeZeros(char address[])
     else
         address[i] = '\0';
 }
+void truncateExp(char* address)
+{
+    int expCount = 0;
+    char exponent[9]; //holds the exponential part of the value
+    char* ep; // points to place in exponent
+    char* p;
+
+    for(p = address; *p != '\0'; p++)
+    {
+        if( (*p == 'E') || (expCount != 0) )
+        {
+            exponent[expCount] = *p;
+            expCount++;
+        }
+    }
+    exponent[expCount] = '#';
+
+    for(p = address; *p != '\0'; p++)
+    {
+        if( *p != '0' ) // in case of 0.0000
+        {
+            p = p+4;
+            for(ep = exponent; *ep != '#'; ep++)
+            {
+                *p = *ep;
+                p++;
+            }
+            *p = '\0';
+            break;
+        }
+    }
+}
