@@ -184,6 +184,8 @@ psiArray readData()
     }
 #endif
     cout<<"\nreadData(): Found numberLines"<<flush;
+    printf("Found %d lines", numberLines);
+    cout << flush;
 
 //Go back to start of file
     datafile.seekg(0, ios::beg);
