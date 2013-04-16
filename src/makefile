@@ -6,7 +6,7 @@ CPP = g++
 #_GL_DIR = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL
 LIBFLAGS  = -L/usr/X11/lib -L/usr/X11/include  -lglut  -lX11 -lXmu -lXi -framework OpenGL
 CPPFLAGS = -Wfatal-errors -Wno-deprecated -fpermissive  -D_DEBUG $(LIBFLAGS) -D_LINUX
-#CPPFLAGS = -Wno-deprecated -fpermissive -D_LINUX -O3 # release
+#CPPFLAGS = -Wfatal-errors -Wno-deprecated -fpermissive  -O3 $(LIBFLAGS) -D_LINUX
 
 #LIBFLAGS  = -L/usr/X11R6/lib -lglut -lGL -lGLU -lX11 -lXmu -lXi
 
