@@ -158,9 +158,7 @@ void init(void)
 
 void quit(int exitStatus)
 {
-#ifdef _DEBUG
-    cout << "\nquit(): $Revision: 1.5 $";
-#endif
+    DEBUG("quit()");
 
     if (glutGetWindow() != 0)
     {
@@ -174,10 +172,6 @@ void quit(int exitStatus)
     else
     {
         cout << "\n\nquit(): Program stopped due to errors";
-#ifdef _WINDOWS
-        cout << "\nPress any key to exit... " << flush;
-        getch();
-#endif
     }
 
     cout<<"\n";
@@ -239,9 +233,7 @@ void accFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GL
     GLint viewport[4];
     glGetIntegerv (GL_VIEWPORT, viewport);
 
-#ifdef _DEBUG
-    cout << "\naccFrustum(): $Revision: 1.5 $";
-#endif
+    DEBUG("accFrustum()");
 
 
     xwsize = right - left;
@@ -260,9 +252,7 @@ void accPerspective(GLdouble fovy, GLdouble aspect, GLdouble d_near, GLdouble d_
 {
     GLdouble fov2,left,right,bottom,top;
 
-#ifdef _DEBUG
-    cout << "\naccPerspective(): $Revision: 1.5 $";
-#endif
+    DEBUG("accPerspective()");
 
     fov2 = ((fovy*PI_) / 180.0) / 2.0;
     top = d_near / (cos(fov2) / sin(fov2));
@@ -486,9 +476,7 @@ void drawCrystal()
     float r,g,b;
     float translationFactor = (1.0/(float)data.extent) + ((float)data.extent-3.0)/(2.0*(float)data.extent);
 
-#ifdef _DEBUG
-    cout << "\ndrawCrystal(): $Revision: 1.5 $"<<flush;
-#endif
+    DEBUG("drawCrystal()");
 
 
     glPushMatrix();
@@ -558,9 +546,7 @@ void drawZscale() // Needs to be plotted after 'crystal' to avoid blending in wi
     float hue;
     int x, y, z;
 
-#ifdef _DEBUG
-    cout << "\ndrawZscale(): $Revision: 1.5 $"<<flush;
-#endif
+    DEBUG("drawZscale()");
 
     glPushMatrix();
 
@@ -730,9 +716,7 @@ void drawColourScale()
     char charMax[15], threeQuarters[15], half[15], quarter[15], bottom[15];
     float exponent;
 
-#ifdef _DEBUG
-    cout << "\ndrawColourScale(): $Revision: 1.5 $";
-#endif
+    DEBUG("drawColourScale()");
 
     glDisable(GL_LIGHTING);
     glDisable(GL_FOG);
@@ -837,9 +821,7 @@ void makeFileName(char* address)
     char end_phi[12];
     char end_theta[12];
 
-#ifdef _DEBUG
-    cout << "\nmakeFileName(): $Revision: 1.5 $";
-#endif
+    DEBUG("makeFileName()");
 
 #ifdef _WINDOWS
     itoa(data.extent, rank, 10);
@@ -959,9 +941,7 @@ void outputTGA(int x, int y, int w, int h, const char *fname)
 {
     unsigned char *image = NULL;
 
-#ifdef _DEBUG
-    cout << "\noutputTGA(): $Revision: 1.5 $";
-#endif
+    DEBUG("outputTGA()");
 
 // Reserve some memory
     image = (unsigned char*)malloc(sizeof(unsigned char)*w*h*3);
@@ -1061,9 +1041,7 @@ void capture(int type)
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
-#ifdef _DEBUG
-    cout << "\ncapture(): $Revision: 1.5 $";
-#endif
+    DEBUG("capture()");
 
     switch(type)
     {
@@ -1183,9 +1161,7 @@ void simpleDraw()
     char charR[12], charPhi[6], charTheta[6];
     char* p;
 
-#ifdef _DEBUG
-    cout << "\nsimpleDraw(): $Revision: 1.5 $";
-#endif
+    DEBUG("simpleDraw()");
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
@@ -1339,9 +1315,7 @@ void antiAliasDraw(void)
     glGetIntegerv (GL_VIEWPORT, viewport);
     glClear(GL_ACCUM_BUFFER_BIT);
 
-#ifdef _DEBUG
-    cout << "\nantiAliasDraw(): $Revision: 1.5 $";
-#endif
+    DEBUG("antiAliasDraw()");
 
     jitter_point offset;
     for (jitter = 0; jitter < incommands.getantiA(); jitter++)
@@ -1375,9 +1349,7 @@ void rotate()
     float floatNumStepsThereOffset = (phi_dif/360);
     float floatNumStepsBackOffset = (1.0-(phi_dif/360));
 
-#ifdef _DEBUG
-    cout << "\nrotate(): $Revision: 1.5 $";
-#endif
+    DEBUG("rotate()");
 
     if((counter) < end)
     {
@@ -1426,9 +1398,7 @@ void fly()
     float phi_dif = incommands.getend_phi() - incommands.getstart_phi();
     float theta_change = incommands.getend_theta() + incommands.getstart_theta() -180.0;
 
-#ifdef _DEBUG
-    cout << "\nfly(): $Revision: 1.5 $";
-#endif
+    DEBUG("fly()");
 
     if(!flipped)
     {
@@ -1504,9 +1474,7 @@ void Draw()
 
 void idle()
 {
-#ifdef _DEBUG
-    cout << "\nidle(): $Revision: 1.5 $";
-#endif
+    DEBUG("idle()");
 
 
     if(incommands.getfly())
@@ -1581,9 +1549,7 @@ void Reshape(int w, int h)
 void Mouse(int button, int state, int x, int y)
 {
 
-#ifdef _DEBUG
-    cout << "\nMouse(): $Revision: 1.5 $"<<flush;
-#endif
+    DEBUG("Mouse()");
 
     if(counter >= end)
     {
@@ -1619,9 +1585,7 @@ void outputEPS(int size, int doSort, char *filename)
     GLint returned = -1;
     FILE *file;
 
-#ifdef _DEBUG
-    cout << "\noutputEPS(): $Revision: 1.5 $"<<flush;
-#endif
+    DEBUG("outputEPS()");
 
     bool sizeIncrease = false;
     size = 100000000;
@@ -1667,9 +1631,7 @@ void
 Keyboard(unsigned char key, int x, int y)
 {
 
-#ifdef _DEBUG
-    cout << "\nKeyboard(): $Revision: 1.5 $"<<flush;
-#endif
+    DEBUG("Keyboard()");
 
     if (incommands.getoutput() == 0)
     {
@@ -1741,9 +1703,7 @@ Keyboard(unsigned char key, int x, int y)
 void mouseButton(int value)
 {
 
-#ifdef _DEBUG
-    cout << "\nmouseButton(): $Revision: 1.5 $"<<flush;
-#endif
+    DEBUG("mouseButton()");
 
     switch (value)
     {
@@ -1780,9 +1740,7 @@ void mouseButton(int value)
 void consoleDump()
 {
 
-#ifdef _DEBUG
-    cout << "\nconsoleDump(): $Revision: 1.5 $"<<flush;
-#endif
+    DEBUG("consoleDump()");
 
     cout << "\n****************************************************************************\n";
     cout << "Program:        Visualising Quantum States in Disordered Systems\n";
@@ -1824,9 +1782,7 @@ void visFunc(int stat)
 
 int main(int argcp, char** argv)
 {
-#ifdef _DEBUG
-    cout << "\nmain(): $Revision: 1.5 $";
-#endif
+    DEBUG("main()");
 
 #ifndef _WINDOWS
 #ifndef _LINUX
