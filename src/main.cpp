@@ -46,6 +46,7 @@ int visStatus;
 int moving, startx, starty, n;
 float angle, angle2, radius;
 const double pi = 3.141592654;
+#define PI_ 3.14159265358979323846
 int counter, flycounter;
 bool flip = incommands.getflip();
 float rgb[3];
@@ -225,7 +226,7 @@ void screenText(float x, float y, float z, char* text)
     glPopMatrix();
 }
 
-#define PI_ 3.14159265358979323846
+
 void accFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble d_near, GLdouble d_far, GLdouble pixdx, GLdouble pixdy, GLdouble eyedx, GLdouble eyedy, GLdouble focus)
 {
     GLdouble xwsize, ywsize;
