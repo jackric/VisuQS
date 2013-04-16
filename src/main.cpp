@@ -77,86 +77,6 @@ float fogColor[]= {incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_
 char origDir[256];
 
 
-
-bool compareSiteSizes(const drawSite &ds1, const drawSite &ds2)
-{
-    return ds1.size < ds2.size;
-}
-
-vector< drawSite > vecDrawSites;
-
-void genOptimizedArray(float threshold)
-{
-
-    int countSites = 0;
-    drawSite tmpDS;
-    float myprob;
-    float size,hue;
-    float r,g,b;
-    float logmax;
-    float logprob;
-
-    float max = data.max;
-
-
-
-
-    for (int i = 0; i < data.extent; i++)
-    {
-
-        for (int j = 0; j < data.extent; j++)
-        {
-
-            for (int k = 0; k < data.extent; k++)
-            {
-
-
-//Test the current site, if prob greater than threshold then store it.
-                if (data.matrix3d[i][j][k] > threshold)
-                {
-
-
-                    tmpDS.i = i;
-                    tmpDS.j = j;
-                    tmpDS.k = k;
-                    myprob = data.matrix3d[i][j][k];
-
-
-                    size = (myprob/max)/((4.0/3)*pi);
-                    size = (float)pow((double)size, 1.0/3);
-                    size = size/(data.extent);
-                    size = size * (1 + overlap*data.extent);
-
-
-                    hue = 360.0*(1.0-( log(max)/log(myprob) ));
-                    hue = hue*(1.0 - cutFrac);
-
-                    hsv_to_rgb(&rgb[0], &hue);
-
-                    r = rgb[0];
-                    g = rgb[1];
-                    b = rgb[2];
-                    tmpDS.r=r;
-                    tmpDS.g=g;
-                    tmpDS.b=b;
-
-                    tmpDS.size = size;
-                    vecDrawSites.push_back(tmpDS);
-                    countSites++;
-
-                }
-
-            }
-
-
-        }
-    }
-    sort(vecDrawSites.begin(),vecDrawSites.end(),compareSiteSizes);
-#ifdef _DEBUG
-    printf("@@@@@\n@@@@@ Generated optimized psiArray, has size of %d countsites is %d\n", (int) vecDrawSites.size(),countSites);
-#endif
-}
-
 void init(void)
 {
     DEBUG("init()");
@@ -213,11 +133,7 @@ void init(void)
         threshold = incommands.getthreshold()*data.max;
     }
 
-    if(incommands.getvisMethod() == 'B')
-    {
-        //Call JR's routine to create vector of pre-computed sizes & colours
-        genOptimizedArray(threshold);
-    }
+
 
     frames = (int)( incommands.getframerate()*incommands.getduration() );
     if(!incommands.getfly() && incommands.getfull())
