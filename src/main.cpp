@@ -272,12 +272,12 @@ class Cell
 private:
     float max;
     float min;
+    psiArray data;
 
 public:
-    Cell() // constructor
+    Cell(psiArray inData) // constructor
     {
-
-
+        data = inData;
     }
 
 
@@ -353,6 +353,116 @@ public:
             quit(1);
         }
     }
+    void draw3d()
+    {
+        int x, y, z;
+        float hue;
+        for (int i=0; i<data.extent; i++)
+        {
+            for (int j=0; j<data.extent; j++)
+            {
+                for (int k=0; k<data.extent; k++)
+                {
+                    glPushMatrix();
+
+                    if(visMeth == DrawStyles::Fog)
+                    {
+                        x = data.coords3d[i][j][k][0];
+                        y = data.coords3d[i][j][k][1];
+                        z = data.coords3d[i][j][k][2];
+                        glTranslatef( (float)x/data.extent, (float)y/data.extent, (float)z/data.extent );
+                    }
+                    else // NOT Fog
+                    {
+                        glTranslatef( (float)i/data.extent, (float)j/data.extent, (float)k/data.extent );
+                    }
+
+                    if(visMeth == DrawStyles::Fog) // Decides colour if 'depth-graduated'
+                        hue = (data.extent-(z+1))*(360.0/data.extent); // Fog is sorted and uses
+                    else                                             // different depth coordinate, 'z'
+                        hue = (data.extent-(k+1))*(360.0/data.extent);
+
+                    float rgb[3];
+                    hue = hue*(1.0 - cutFrac);
+                    hsv_to_rgb(&rgb[0], &hue);
+
+                    //Test the current site, if prob greater than threshold then draw it.
+                    if (data.matrix3d[i][j][k] > threshold)
+                    {
+                        this->draw(rgb, data.matrix3d[i][j][k]);
+                    }
+
+                    glPopMatrix();
+                }
+            }
+        }
+
+    }
+    void drawCrystal()
+    {
+        float r,g,b;
+        float translationFactor = (1.0/(float)data.extent) + ((float)data.extent-3.0)/(2.0*(float)data.extent);
+
+        DEBUG("drawCrystal()");
+
+
+        glPushMatrix();
+
+        if ( data.dimension == 3 )
+            glTranslatef( -translationFactor, -translationFactor, -translationFactor); // translates entire plot to keep
+        if ( data.dimension == 2 )                                                   // it central and within outline cube
+            glTranslatef( -translationFactor, -translationFactor, 0);
+        if ( data.dimension == 1 )
+            glTranslatef( -translationFactor, 0, 0);
+
+        r = 0.0;
+        g = 0.0;
+        b = 1.0;
+
+        switch (data.dimension)
+        {
+        case 3:
+            draw3d();
+            break;
+            /*
+            case 2:
+            draw2d();
+            break;
+            case 1:
+            draw1d();
+            break;
+            */
+        default:
+            cout<<"\ncell(): error --- dimension should be 1-3";
+            quit(1);
+        }
+
+        glPopMatrix();
+
+        glColor3f(incommands.gettext_r(), incommands.gettext_g(), incommands.gettext_b());
+
+        if(data.dimension == 3 && incommands.getcolourMethod() && !incommands.getperiodic() )
+            glutWireCube (1.0);
+        else if(data.dimension == 3 && !incommands.getcolourMethod() && !incommands.getperiodic() )
+        {
+            glBegin(GL_LINE_STRIP);       // Plots wire-cube with spaces for the z-scales
+            glVertex3f(-0.5, 0.5, 0.5);
+            glVertex3f(-0.5, -0.5, 0.5);
+            glVertex3f(0.5, -0.5, 0.5);
+            glVertex3f(0.5, 0.5, 0.5);
+            glVertex3f(-0.5, 0.5, 0.5);
+            glVertex3f(-0.5, 0.5, -0.5);
+            glVertex3f(-0.5, -0.5, -0.5);
+            glVertex3f(0.5, -0.5, -0.5);
+            glVertex3f(0.5, 0.5, -0.5);
+            glVertex3f(0.5, 0.5, 0.5);
+            glEnd();
+            glBegin(GL_LINES);
+            glVertex3f(-0.5, 0.5, -0.5);
+            glVertex3f(0.5, 0.5, -0.5);
+            glEnd();
+        }
+    }
 private:
     void maybeColorize(float prob, float max, float rgb[3])
     {
@@ -367,53 +477,6 @@ private:
     }
 };
 
-Cell unit;
-
-void draw3d()
-{
-    int x, y, z;
-    float hue;
-    for (int i=0; i<data.extent; i++)
-    {
-        for (int j=0; j<data.extent; j++)
-        {
-            for (int k=0; k<data.extent; k++)
-            {
-                glPushMatrix();
-
-                if(visMeth == DrawStyles::Fog)
-                {
-                    x = data.coords3d[i][j][k][0];
-                    y = data.coords3d[i][j][k][1];
-                    z = data.coords3d[i][j][k][2];
-                    glTranslatef( (float)x/data.extent, (float)y/data.extent, (float)z/data.extent );
-                }
-                else // NOT Fog
-                {
-                    glTranslatef( (float)i/data.extent, (float)j/data.extent, (float)k/data.extent );
-                }
-
-                if(visMeth == DrawStyles::Fog) // Decides colour if 'depth-graduated'
-                    hue = (data.extent-(z+1))*(360.0/data.extent); // Fog is sorted and uses
-                else                                             // different depth coordinate, 'z'
-                    hue = (data.extent-(k+1))*(360.0/data.extent);
-
-                float rgb[3];
-                hue = hue*(1.0 - cutFrac);
-                hsv_to_rgb(&rgb[0], &hue);
-
-                //Test the current site, if prob greater than threshold then draw it.
-                if (data.matrix3d[i][j][k] > threshold)
-                {
-                    unit.draw(rgb, data.matrix3d[i][j][k]);
-                }
-
-                glPopMatrix();
-            }
-        }
-    }
-
-}
 
 /*
 void draw2d()
@@ -462,71 +525,6 @@ void draw1d()
 }
 */
 
-void drawCrystal()
-{
-    float r,g,b;
-    float translationFactor = (1.0/(float)data.extent) + ((float)data.extent-3.0)/(2.0*(float)data.extent);
-
-    DEBUG("drawCrystal()");
-
-
-    glPushMatrix();
-
-    if ( data.dimension == 3 )
-        glTranslatef( -translationFactor, -translationFactor, -translationFactor); // translates entire plot to keep
-    if ( data.dimension == 2 )                                                   // it central and within outline cube
-        glTranslatef( -translationFactor, -translationFactor, 0);
-    if ( data.dimension == 1 )
-        glTranslatef( -translationFactor, 0, 0);
-
-    r = 0.0;
-    g = 0.0;
-    b = 1.0;
-
-    switch (data.dimension)
-    {
-    case 3:
-        draw3d();
-        break;
-        /*
-        case 2:
-        draw2d();
-        break;
-        case 1:
-        draw1d();
-        break;
-        */
-    default:
-        cout<<"\ncell(): error --- dimension should be 1-3";
-        quit(1);
-    }
-
-    glPopMatrix();
-
-    glColor3f(incommands.gettext_r(), incommands.gettext_g(), incommands.gettext_b());
-
-    if(data.dimension == 3 && incommands.getcolourMethod() && !incommands.getperiodic() )
-        glutWireCube (1.0);
-    else if(data.dimension == 3 && !incommands.getcolourMethod() && !incommands.getperiodic() )
-    {
-        glBegin(GL_LINE_STRIP);       // Plots wire-cube with spaces for the z-scales
-        glVertex3f(-0.5, 0.5, 0.5);
-        glVertex3f(-0.5, -0.5, 0.5);
-        glVertex3f(0.5, -0.5, 0.5);
-        glVertex3f(0.5, 0.5, 0.5);
-        glVertex3f(-0.5, 0.5, 0.5);
-        glVertex3f(-0.5, 0.5, -0.5);
-        glVertex3f(-0.5, -0.5, -0.5);
-        glVertex3f(0.5, -0.5, -0.5);
-        glVertex3f(0.5, 0.5, -0.5);
-        glVertex3f(0.5, 0.5, 0.5);
-        glEnd();
-        glBegin(GL_LINES);
-        glVertex3f(-0.5, 0.5, -0.5);
-        glVertex3f(0.5, 0.5, -0.5);
-        glEnd();
-    }
-}
 
 
 
@@ -638,6 +636,7 @@ void adjustRange(float coord, int base, int *from, int *until)
 
 void render()
 {
+    Cell unit(data);
 
     DEBUG("render()");
 
@@ -678,7 +677,7 @@ void render()
                 {
                     glPushMatrix();
                     glTranslatef((float)x, (float)y, (float)z);
-                    drawCrystal();
+                    unit.drawCrystal();
                     glPopMatrix();
                 }
             }
@@ -686,7 +685,7 @@ void render()
     }
     else
     {
-        drawCrystal();
+        unit.drawCrystal();
 
         if( !incommands.getcolourMethod() && (data.dimension == 3) )
             drawZscale();
