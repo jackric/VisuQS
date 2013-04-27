@@ -147,7 +147,6 @@ void init(void)
 
 }
 
-#pragma argsused
 
 void quit(int exitStatus)
 {
@@ -379,32 +378,9 @@ public:
             cout<<"\ncell(): error --- dimension should be 1-3";
             quit(1);
         }
-
         glPopMatrix();
-
         glColor3f(incommands.gettext_r(), incommands.gettext_g(), incommands.gettext_b());
-
-        if(data.dimension == 3 && incommands.getcolourMethod() && !incommands.getperiodic() )
-            glutWireCube (1.0);
-        else if(data.dimension == 3 && !incommands.getcolourMethod() && !incommands.getperiodic() )
-        {
-            glBegin(GL_LINE_STRIP);       // Plots wire-cube with spaces for the z-scales
-            glVertex3f(-0.5, 0.5, 0.5);
-            glVertex3f(-0.5, -0.5, 0.5);
-            glVertex3f(0.5, -0.5, 0.5);
-            glVertex3f(0.5, 0.5, 0.5);
-            glVertex3f(-0.5, 0.5, 0.5);
-            glVertex3f(-0.5, 0.5, -0.5);
-            glVertex3f(-0.5, -0.5, -0.5);
-            glVertex3f(0.5, -0.5, -0.5);
-            glVertex3f(0.5, 0.5, -0.5);
-            glVertex3f(0.5, 0.5, 0.5);
-            glEnd();
-            glBegin(GL_LINES);
-            glVertex3f(-0.5, 0.5, -0.5);
-            glVertex3f(0.5, 0.5, -0.5);
-            glEnd();
-        }
+        glutWireCube (1.0);
     }
 private:
     void maybeColorize(float prob, float max, float rgb[3])
@@ -471,55 +447,6 @@ void draw1d()
 
 
 
-void drawZscale() // Needs to be plotted after 'crystal' to avoid blending in with the data
-{
-    float r,g,b;
-    float translationFactor = (1.0/(float)data.extent) + ((float)data.extent-3.0)/(2.0*(float)data.extent);
-    float hue;
-    int x, y, z;
-
-    DEBUG("drawZscale()");
-
-    glPushMatrix();
-
-    glTranslatef( -translationFactor, -translationFactor, -translationFactor); // translates entire plot to keep
-
-    glDisable(GL_LIGHTING);
-    glDisable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
-    glLineWidth(6);
-
-    for (int i=0; i<data.extent; i++)
-    {
-        for (int j=0; j<data.extent; j++)
-        {
-            for (int k=0; k<data.extent; k++)
-            {
-                hue = (data.extent-(k+1))*(360.0/data.extent);
-                hue = hue*(1.0 - cutFrac);
-
-                hsv_to_rgb(&rgb[0], &hue);
-                r = rgb[0];
-                g = rgb[1];
-                b = rgb[2];
-
-                glBegin(GL_LINES);
-                glColor3f(r, g, b);
-                glVertex3f(-(0.5/(float)data.extent), -(0.5/(float)data.extent), (float)k/data.extent -(0.5/(float)data.extent));
-                glVertex3f(-(0.5/(float)data.extent), -(0.5/(float)data.extent), ((float)k/data.extent)+1.0/data.extent -(0.5/(float)data.extent));
-                glVertex3f(1.0 -(0.5/(float)data.extent), -(0.5/(float)data.extent), (float)k/data.extent -(0.5/(float)data.extent));
-                glVertex3f(1.0 -(0.5/(float)data.extent), -(0.5/(float)data.extent), ((float)k/data.extent)+1.0/data.extent -(0.5/(float)data.extent));
-                glEnd();
-            }
-        }
-
-    }
-
-    glLineWidth(1);
-    glEnable(GL_LIGHTING);
-
-    glPopMatrix();
-}
 
 int adjustRounding(float coord)
 {
@@ -629,9 +556,6 @@ void render()
     else
     {
         unit.drawCrystal();
-
-        if( !incommands.getcolourMethod() && (data.dimension == 3) )
-            drawZscale();
     }
 
     glPopMatrix();
