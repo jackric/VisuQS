@@ -5,12 +5,20 @@ CPP = g++
 #LIBFLAGS  = -L/usr/X11/include -lglut -lOpenGL -lGLU -lX11 -lXmu -lXi
 #_GL_DIR = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL
 LIBFLAGS  = -L/usr/X11/lib -L/usr/X11/include  -lglut  -lX11 -lXmu -lXi -framework OpenGL
-CPPFLAGS = -Wfatal-errors -Wno-deprecated -fpermissive  -D_DEBUG $(LIBFLAGS) -D_LINUX
-#CPPFLAGS = -Wfatal-errors -Wno-deprecated -fpermissive  -O3 $(LIBFLAGS) -D_LINUX
+CPPFLAGS = -Wfatal-errors -Wno-deprecated -fpermissive $(LIBFLAGS)
+debug: CPPFLAGS += -D_DEBUG
+debug: executable
+
+release: CPPFLAGS += -O3
+release: executable
+
+all: executable
+
+
 
 #LIBFLAGS  = -L/usr/X11R6/lib -lglut -lGL -lGLU -lX11 -lXmu -lXi
 
-$(EXE):	main.o createInput.o readData.o readInput.o quickSort.o output.o HSVtoRGB.o util.o
+executable:	main.o createInput.o readData.o readInput.o quickSort.o output.o HSVtoRGB.o util.o
 
 	$(CPP) $(CPPFLAGS) -o $(EXE) \
 	main.o createInput.o readData.o readInput.o quickSort.o output.o HSVtoRGB.o util.o $(LIBFLAGS)
