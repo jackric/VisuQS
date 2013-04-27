@@ -141,31 +141,6 @@ psiArray readData()
     bool firstLine = true;
     char tempChar;
 
-#ifdef _WINDOWS
-    for ( int currentChar = 1; currentChar <= totalChars; currentChar++ ) // Find number of lines in file
-    {
-        datafile.get(tempChar);
-        if ( firstLine == true )
-        {
-            //Find the size of a line by incrementing until newline, then count the rest of the file
-            lineSize++;
-            if ( tempChar == '\n' )
-            {
-                firstLine = false;
-            }
-        }
-        if ( currentChar == (totalChars - 1) && tempChar == '\n' )
-        {
-            numberLines--;
-        }
-        if ( tempChar == '\n' )
-        {
-            currentChar++;
-            numberLines++;
-        }
-    }
-#endif
-#ifdef _LINUX
     for ( int currentChar = 1; currentChar <= totalChars; currentChar++ ) // Find number of lines in file
     {
         datafile.get(tempChar);
@@ -182,7 +157,6 @@ psiArray readData()
             numberLines++;
         }
     }
-#endif
     cout<<"\nreadData(): Found numberLines"<<flush;
     printf("Found %d lines", numberLines);
     cout << flush;

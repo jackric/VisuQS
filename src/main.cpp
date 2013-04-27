@@ -28,12 +28,10 @@ Revision:       $Revision: 1.5 $
 
 // #include <cstring>
 
-#ifdef _WINDOWS
-#include <conio.h>
-#endif
-#ifdef _LINUX
+
+
 #include <curses.h>
-#endif
+
 using namespace std;
 
 
@@ -149,13 +147,10 @@ void init(void)
     rubberneck = 0.0;
     flipped = false;
 
-#ifdef _WINDOWS
-    system("del /q /s seq > NUL 2> NUL");
-    system("rd /q /s seq 2> NUL");
-#endif
-#ifdef _LINUX
+
+
     system("rm -r seq > /dev/null 2> /dev/null");
-#endif
+
 
 }
 
@@ -813,14 +808,9 @@ void makeFileName(char* address)
 
     DEBUG("makeFileName()");
 
-#ifdef _WINDOWS
-    itoa(data.extent, rank, 10);
-    itoa(data.dimension, dimension, 10);
-#endif
-#ifdef _LINUX
+
     snprintf(rank, 9, "%d", data.extent);
     snprintf(dimension, 9, "%d", data.dimension);
-#endif
     if(incommands.getoutput() != 0) //if not 'interactive mode...'
     {
         sprintf(start_r, "%f", incommands.getstart_r());
@@ -851,23 +841,18 @@ void makeFileName(char* address)
     if (incommands.getoutput() == 3) //create movie
     {
         strcpy(address, "Animations/");
-#ifdef _WINDOWS
-        system("mkdir Animations 2> NUL");
-#endif
-#ifdef _LINUX
+
+
         system("mkdir Animations 2> /dev/null");
-#endif
+
     }
     else     //create stills
     {
-#ifdef _WINDOWS
-        strcpy(address, "Stills\\");
-        system("mkdir Stills 2> NUL");
-#endif
-#ifdef _LINUX
+
+
         strcpy(address, "Stills/");
         system("mkdir Stills 2> /dev/null");
-#endif
+
     }
 
     strcat(address, rank); //append "system size" to path
@@ -1474,21 +1459,11 @@ void idle()
 
     if((incommands.getoutput() == 3) && (counter > end) && !vidCreated)
     {
-#ifdef _WINDOWS
-        createVCF();
-        system("vdub.exe /s VQSconfig.vcf > NUL");
-        system("rename seq aviSequence");
-        if(!altCodec)
-            system("del /q VQSconfig.vcf > NUL");
-        vidCreated = true;
-        cout << "\nAnimation successfully created";
-#endif
-#ifdef _LINUX
+
         system("mv seq aviSequence");
         cout<<"\navi output is not available under Linux.";
         cout<<"\nThe image sequence you have produced can be found in the 'aviSequence' folder.";
         cout<<"\nTo create a video file from this sequence we recommend using 'avidemux'.";
-#endif
         quit(0);
     }
 
@@ -1665,23 +1640,11 @@ Keyboard(unsigned char key, int x, int y)
         switch(key)
         {
         case 27: // escape key
-#ifdef _WINDOWS
-            system("del /q /s seq > NUL 2> NUL");
-            system("rd /q /s seq 2> NUL");
-#endif
-#ifdef _LINUX
             system("rm -r seq > /dev/null 2> /dev/null");
-#endif
             quit(0);
             break;
         case 'q': // escape key
-#ifdef _WINDOWS
-            system("del /q /s seq > NUL 2> NUL");
-            system("rd /q /s seq 2> NUL");
-#endif
-#ifdef _LINUX
             system("rm -r seq > /dev/null 2> /dev/null");
-#endif
             quit(0);
             break;
         default:
@@ -1722,12 +1685,7 @@ void consoleDump()
     cout << "Description:    Displays probability distribution of a 1, 2, or 3 dimensional\n";
     cout << "                data set on screen, with user-defined visualisation settings\n";
     cout << "Authors:        Richard Marriott / Luke Gyngell\n";
-#ifdef _WINDOWS
-    cout << "Environment:    Borland C++BuilderX-Personal V.1.0.0.1786\n";
-#endif
-#ifdef _LINUX
     cout << "Environment:    g++ (GCC) 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0)\n";
-#endif
     cout << "Notes:          Data read from \"VQSdatafile.txt\" in format \"(x) (y) (z) psi\"\n";
     cout << "                Editable input parameters read from \"VQSinput.txt\"\n";
     cout << "                Both files must lie in directory from which program is run\n";
@@ -1770,13 +1728,6 @@ int main(int argcp, char** argv)
         break;
     }
 
-#ifndef _WINDOWS
-#ifndef _LINUX
-    cout<<"\nYou must define your OS on compilation.";
-    cout<<"\nUse either -D_WINDOWS or -D_LINUX";
-    quit(1);
-#endif
-#endif
 
 
     if (incommands.validateInput() == 1)
