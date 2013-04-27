@@ -27,24 +27,24 @@ void capture(int type, int counter)
         DEBUG("Image created successfully");
         break;
     case 2: //if making STILLS
-            snprintf(fname, sizeof(fname), "image_%d.tga", counter);
-            DEBUG("Creating image %s", fname);
-            outputTGA(0, 0, viewport[2], viewport[3], fname);
-            DEBUG("Image created successfully");
+        snprintf(fname, sizeof(fname), "image_%d.tga", counter);
+        DEBUG("Creating image %s", fname);
+        outputTGA(0, 0, viewport[2], viewport[3], fname);
+        DEBUG("Image created successfully");
         break;
     case 3:
-            if (counter == 1)
-            {
-                system("mkdir seq");
-            }
-            char screenNumber[9];
+        if (counter == 1)
+        {
+            system("mkdir seq");
+        }
+        char screenNumber[9];
 
-            snprintf(screenNumber, sizeof(screenNumber), "%d", counter);
-            strcpy(fname, "seq/");
-            strcat(fname, screenNumber);
-            strcat(fname, ".tga");
+        snprintf(screenNumber, sizeof(screenNumber), "%d", counter);
+        strcpy(fname, "seq/");
+        strcat(fname, screenNumber);
+        strcat(fname, ".tga");
 
-            outputTGA(0, 0, viewport[2], viewport[3], fname);
+        outputTGA(0, 0, viewport[2], viewport[3], fname);
         break;
     default:
         break;
