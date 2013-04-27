@@ -1,3 +1,4 @@
+#pragma once
 /*
  * (c) Copyright 1993, Silicon Graphics, Inc.
  * ALL RIGHTS RESERVED

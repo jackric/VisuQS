@@ -8,6 +8,9 @@ Source:         http://www.opengl.org/resources/code/rendering/mjktips/Feedback.
 
 
 #include "output.h"
+#include <cstdio>
+#include <cmath>
+#include <GL/glut.h>
 
 using namespace std;
 
@@ -404,182 +407,10 @@ compare(const void *a, const void *b)
     }
 }
 
-void
-spewSortedFeedback(FILE * file, GLint size, GLfloat * buffer)
-{
-    int token;
-    GLfloat *loc, *end;
-    Feedback3Dcolor *vertex;
-    GLfloat depthSum;
-    int nprimitives, item;
-    DepthIndex *prims;
-    int nvertices, i;
-
-    end = buffer + size;
-
-    /* Count how many primitives there are. */
-    nprimitives = 0;
-    loc = buffer;
-    while (loc < end)
-    {
-        token = (int)*loc;
-        loc++;
-        switch (token)
-        {
-        case GL_LINE_TOKEN:
-        case GL_LINE_RESET_TOKEN:
-            loc += 14;
-            nprimitives++;
-            break;
-        case GL_POLYGON_TOKEN:
-            nvertices = (int)*loc;
-            loc++;
-            loc += (7 * nvertices);
-            nprimitives++;
-            break;
-        case GL_POINT_TOKEN:
-            loc += 7;
-            nprimitives++;
-            break;
-        default:
-            /* XXX Left as an excersie to the reader. */
-            printf("Incomplete implementation.  Unexpected token (%d).\n",
-                   token);
-            exit(1);
-        }
-    }
-
-    /* Allocate an array of pointers that will point back at
-       primitives in the feedback buffer.  There will be one
-       entry per primitive.  This array is also where we keep the
-       primitive's average depth.  There is one entry per
-       primitive  in the feedback buffer. */
-    prims = (DepthIndex *) malloc(sizeof(DepthIndex) * nprimitives);
-
-    item = 0;
-    loc = buffer;
-    while (loc < end)
-    {
-        prims[item].ptr = loc;  /* Save this primitive's location. */
-        token = (int)*loc;
-        loc++;
-        switch (token)
-        {
-        case GL_LINE_TOKEN:
-        case GL_LINE_RESET_TOKEN:
-            vertex = (Feedback3Dcolor *) loc;
-            depthSum = vertex[0].z + vertex[1].z;
-            prims[item].depth = depthSum / 2.0;
-            loc += 14;
-            break;
-        case GL_POLYGON_TOKEN:
-            nvertices = (int)*loc;
-            loc++;
-            vertex = (Feedback3Dcolor *) loc;
-            depthSum = vertex[0].z;
-            for (i = 1; i < nvertices; i++)
-            {
-                depthSum += vertex[i].z;
-            }
-            prims[item].depth = depthSum / nvertices;
-            loc += (7 * nvertices);
-            break;
-        case GL_POINT_TOKEN:
-            vertex = (Feedback3Dcolor *) loc;
-            prims[item].depth = vertex[0].z;
-            loc += 7;
-            break;
-        default:
-            /* XXX Left as an excersie to the reader. */
-            assert(1);
-        }
-        item++;
-    }
-    assert(item == nprimitives);
-
-    /* Sort the primitives back to front. */
-    qsort(prims, nprimitives, sizeof(DepthIndex), compare);
-
-    /* Understand that sorting by a primitives average depth
-       doesn't allow us to disambiguate some cases like self
-       intersecting polygons.  Handling these cases would require
-       breaking up the primitives.  That's too involved for this
-       example.  Sorting by depth is good enough for lots of
-       applications. */
-
-    /* Emit the Encapsulated PostScript for the primitives in
-       back to front order. */
-    for (item = 0; item < nprimitives; item++)
-    {
-        (void) spewPrimitiveEPS(file, prims[item].ptr);
-    }
-
-    free(prims);
-}
 
 #define EPS_GOURAUD_THRESHOLD 0.1  /* Lower for better (slower)
 
 smooth shading. */
 
-void
-spewWireFrameEPS(FILE * file, int doSort, GLint size, GLfloat * buffer, char *creator)
-{
-    GLfloat clearColor[4], viewport[4];
-    GLfloat lineWidth;
-    int i;
-
-    /* Read back a bunch of OpenGL state to help make the EPS
-       consistent with the OpenGL clear color, line width, point
-       size, and viewport. */
-    glGetFloatv(GL_VIEWPORT, viewport);
-    glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
-    glGetFloatv(GL_LINE_WIDTH, &lineWidth);
-    glGetFloatv(GL_POINT_SIZE, &pointSize);
-
-    /* Emit EPS header. */
-    fputs("%!PS-Adobe-2.0 EPSF-2.0\n", file);
-    /* Notice %% for a single % in the fprintf calls. */
-    fprintf(file, "%%%%Creator: %s (using OpenGL feedback)\n", file, creator);
-    fprintf(file, "%%%%BoundingBox: %g %g %g %g\n",
-            viewport[0], viewport[1], viewport[2], viewport[3]);
-    fputs("%%EndComments\n", file);
-    fputs("\n", file);
-    fputs("gsave\n", file);
-    fputs("\n", file);
-
-    /* Output Frederic Delhoume's "gouraudtriangle" PostScript
-       fragment. */
-    fputs("% the gouraudtriangle PostScript fragement below is free\n", file);
-    fputs("% written by Frederic Delhoume (delhoume@ilog.fr)\n", file);
-    fprintf(file, "/threshold %g def\n", EPS_GOURAUD_THRESHOLD);
-    for (i = 0; gouraudtriangleEPS[i]; i++)
-    {
-        fprintf(file, "%s\n", gouraudtriangleEPS[i]);
-    }
-
-    fprintf(file, "\n%g setlinewidth\n", lineWidth);
-
-    /* Clear the background like OpenGL had it. */
-    fprintf(file, "%g %g %g setrgbcolor\n",
-            clearColor[0], clearColor[1], clearColor[2]);
-    fprintf(file, "%g %g %g %g rectfill\n\n",
-            viewport[0], viewport[1], viewport[2], viewport[3]);
-
-    if (doSort)
-    {
-        spewSortedFeedback(file, size, buffer);
-    }
-    else
-    {
-        spewUnsortedFeedback(file, size, buffer);
-    }
-
-    /* Emit EPS trailer. */
-    fputs("grestore\n\n", file);
-    fputs("%Add `showpage' to the end of this file to be able to print to a printer.\n",
-          file);
-
-    fclose(file);
-}
 
 

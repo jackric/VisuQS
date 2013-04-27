@@ -17,11 +17,12 @@ all: executable
 
 
 #LIBFLAGS  = -L/usr/X11R6/lib -lglut -lGL -lGLU -lX11 -lXmu -lXi
+OBJ_FILES = main.o createInput.o readData.o readInput.o quickSort.o output.o HSVtoRGB.o util.o capture.o
 
-executable:	main.o createInput.o readData.o readInput.o quickSort.o output.o HSVtoRGB.o util.o
+executable:	$(OBJ_FILES)
 
 	$(CPP) $(CPPFLAGS) -o $(EXE) \
-	main.o createInput.o readData.o readInput.o quickSort.o output.o HSVtoRGB.o util.o $(LIBFLAGS)
+	$(OBJ_FILES) $(LIBFLAGS)
 	mv *.o $(EXE_DIR)
 	mv $(EXE) $(EXE_DIR)
 
@@ -48,6 +49,9 @@ HSVtoRGB.o:	HSVtoRGB.cpp
 
 util.o:	util.cpp
 	$(CPP) $(CPPFLAGS) -c util.cpp
+
+capture.o:	capture.cpp
+	$(CPP) $(CPPFLAGS) -c capture.cpp
 
 clean:
 	cd $(EXE_DIR)

@@ -9,6 +9,8 @@ Source:         www.uio.no/studier/emner/matnat/ifi/INF3320/h04/undervisningsmat
 
 #include "HSVtoRGB.h"
 #include <iostream>
+#include <cfloat>
+#include <cmath>
 
 const double pi = 3.141592654;
 

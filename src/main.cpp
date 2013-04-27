@@ -11,20 +11,22 @@ Notes:          Data read from \"VQSdatafile.txt\" in format \"(x) (y) (z) psi\"
 Revision:       $Revision: 1.5 $
 ****************************************************************************/
 
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <cfloat>
+#include <GL/glut.h>
+#include <time.h>
+
 #include "main.h"
 #include "readData.h"
-#include "readInput.h"
-#include "HSVtoRGB.h"
-#include "output.h"
+#include "capture.h"
 #include "jitter.h"
 #include "debug.h"
 #include "util.h"
-#include <iostream>
-#include <GL/glut.h>
-#include <cmath>
-#include <cstring>
-#include <cstdlib>
-#include <time.h>
+#include "HSVtoRGB.h"
+#include "readInput.h"
+#include "output.h"
 
 // #include <cstring>
 
@@ -78,6 +80,7 @@ float mat_shininess[] = { 25.0 };
 float fogColor[]= {incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_b(), 1.0};
 
 char origDir[256];
+
 
 
 void init(void)
@@ -795,338 +798,9 @@ void drawColourScale()
         screenText(2745, -1900, -3000, bottom);
 }
 
-void makeFileName(char* address)
-{
-    char rank[12];
-    char dimension[12];
-    char start_r[12];
-    char start_phi[12];
-    char start_theta[12];
-    char end_r[12];
-    char end_phi[12];
-    char end_theta[12];
-
-    DEBUG("makeFileName()");
-
-
-    snprintf(rank, 9, "%d", data.extent);
-    snprintf(dimension, 9, "%d", data.dimension);
-    if(incommands.getoutput() != 0) //if not 'interactive mode...'
-    {
-        sprintf(start_r, "%f", incommands.getstart_r());
-        sprintf(start_phi, "%f", incommands.getstart_phi());
-        sprintf(start_theta, "%f", incommands.getstart_theta());
-    }
-    else //if interactive
-    {
-        if(radius < 0)
-            sprintf(start_r, "%f", -radius);
-        else
-            sprintf(start_r, "%f", radius);
-        sprintf(start_phi, "%d", (int)modAngle);
-        sprintf(start_theta, "%d", (int)modAngle2);
-    }
-    sprintf(end_r, "%f", incommands.getend_r());
-    sprintf(end_phi, "%f", incommands.getend_phi());
-    sprintf(end_theta, "%f", incommands.getend_theta());
-
-    removeZeros(start_r);
-    removeZeros(start_phi);
-    removeZeros(start_theta);
-    removeZeros(end_r);
-    removeZeros(end_phi);
-    removeZeros(end_theta);
-
-//create folders first
-    if (incommands.getoutput() == 3) //create movie
-    {
-        strcpy(address, "Animations/");
-
-
-        system("mkdir Animations 2> /dev/null");
-
-    }
-    else     //create stills
-    {
-
-
-        strcpy(address, "Stills/");
-        system("mkdir Stills 2> /dev/null");
-
-    }
-
-    strcat(address, rank); //append "system size" to path
-    if (incommands.getoutput() != 2) //if not STILLS
-    {
-        strcat(address, "^");
-    }
-    else
-    {
-        strcat(address, "-");
-    }
-
-    strcat(address, dimension);
-    strcat(address, "-");
-
-    if(visMeth == DrawStyles::Fog)
-        strcat(address, "F");
-    else if(visMeth == DrawStyles::Cubes)
-        strcat(address, "C");
-    else
-        strcat(address, "B");
-
-    if(incommands.getcolourMethod())
-        strcat(address, "F-");
-    else
-        strcat(address, "G-");
-
-    strcat(address, start_r);
-    strcat(address, "-");
-    strcat(address, start_phi);
-    strcat(address, "-");
-    strcat(address, start_theta);
-
-    if((incommands.getoutput() > 1) && incommands.getfly())
-        strcat(address, "-fly-");
-    else if((incommands.getoutput() > 1) && !incommands.getfly())
-        strcat(address, "-rot-");
-
-    if(incommands.getoutput() > 1)
-    {
-        strcat(address, end_r);
-        strcat(address, "-");
-        strcat(address, end_phi);
-        strcat(address, "-");
-        strcat(address, end_theta);
-    }
-
-    if((incommands.getoutput() > 1) && !incommands.getfly() && incommands.getfull())
-        strcat(address, "-full");
 
 
 
-    if(incommands.getoutput() == 3)
-    {
-        strcat(address, ".avi");
-    }
-}
-
-
-void outputTGA(int x, int y, int w, int h, const char *fname)
-{
-    unsigned char *image = NULL;
-
-    DEBUG("outputTGA()");
-
-// Reserve some memory
-    image = (unsigned char*)malloc(sizeof(unsigned char)*w*h*3);
-    if (!image)
-    {
-        fprintf(stderr, "Unable to allocate image buffer\n");
-//ret = -1;
-    }
-    else
-    {
-        glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, image);
-
-        for (int i = 0; i < w*h*3; i = i + 3)
-        {
-            GLfloat temp = image[i];
-            image[i] = image[i+2];
-            image[i+2] = (unsigned char)temp;
-        }
-        int i;
-        FILE *fp;
-
-// See http://www.dcs.ed.ac.uk/home/mxr/gfx/2d/TGA.txt  for spec
-        struct TGAHeader
-        {
-            unsigned char idfield_len;
-            unsigned char cmap_type;
-            unsigned char image_type;
-            unsigned char cmap_spec[5];
-            unsigned char x_orig[2];
-            unsigned char y_orig[2];
-            unsigned char width[2];
-            unsigned char height[2];
-            unsigned char pixel_size;
-            unsigned char image_desc;
-        } header; //__attribute__((packed)) header;
-// Open file
-        fp = fopen(fname, "wb");
-
-        if (!fp)
-        {
-            fprintf(stderr, "Unable to open %s for writing\n", fname);
-        }
-        else
-        {
-// Construct header
-            header.idfield_len = 0;
-            header.cmap_type = 0;
-            header.image_type = 2;
-            for (i = 0; i < 5; i++)
-            {
-                header.cmap_spec[i] = 0;
-            }
-            for (i = 0; i < 2; i++)
-            {
-                header.x_orig[i] = 0;
-                header.y_orig[i] = 0;
-            }
-// Lo bits
-            header.width[0] = w & 0xFF;
-// Hi bits
-            header.width[1] = (w >> 8) & 0xFF;
-            header.height[0] = h & 0xFF;
-            header.height[1] = (h >> 8) & 0xFF;
-            header.pixel_size = 24;
-            header.image_desc = 0;
-// Output header
-            fwrite(&header, sizeof(header), 1, fp);
-// Output image
-            fwrite(image, sizeof(unsigned char), w*h*3, fp);
-        }
-        if (fp)
-        {
-            fclose(fp);
-        }
-        if (image)
-        {
-            free(image);
-        }
-
-//Build a command string to convert written TGA to PNG, then fire off in background
-        char convertCmd[512];
-
-        sprintf(convertCmd,"convert %s %s/`basename %s`.png && rm -f %s &",fname,origDir,fname,fname);
-//sprintf(convertCmd,"echo convert %s %s/`basename %s`.png",fname,origDir,fname);
-#ifdef _DEBUG
-        printf("%s\n",convertCmd);
-#endif
-
-        system(convertCmd);
-
-    }
-}
-
-void capture(int type)
-{
-    char fname[256];
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-
-    DEBUG("capture()");
-
-    switch(type)
-    {
-    case 0:
-        makeFileName(fname);
-        strcat(fname, ".tga");
-#ifdef _DEBUG
-        cout << "\nCreating image " << fname << flush;
-#endif
-        outputTGA(0, 0, viewport[2], viewport[3], fname);
-#ifdef _DEBUG
-        cout << "\nImage created successfully" << flush;
-#endif
-        break;
-    case 1:
-        makeFileName(fname);
-        strcat(fname, ".eps");
-#ifdef _DEBUG
-        cout << "\nCreating image " << fname << flush;
-#endif
-        outputEPS(200000000, 1, fname);
-#ifdef _DEBUG
-        cout << "\nImage created successfully" << flush;
-#endif
-        break;
-    case 2: //if making STILLS
-        makeFileName(fname);
-        if (counter == 1) //if this is the first frame
-        {
-            char dname[256];
-//make a directory like "100-3-FF-1.5-0.0-90.0-rot-1.5-359.0-90.0-full"
-            strcpy(dname, "mkdir ");
-            strcat(dname, fname);
-            cout << "\n" << dname;
-#ifdef _WINDOWS
-            strcat(dname, " 2> NUL");
-            system(dname);
-#endif
-#ifdef _LINUX
-            strcat(dname, " 2> /dev/null");
-            system(dname);
-#endif
-        }
-        if (counter-1 < end)
-        {
-            char screenNumber[9];
-            char endFrameNum[9];
-            char formatStr[9];
-            char strPadWidth[5];
-
-            int padWidth;
-
-//Find out how long last frame is, so we can zero-pad accordingly.
-//e.g. 334 gives 3, so 1 => 001.tga etc
-
-            sprintf(endFrameNum,"%d",end);
-            padWidth = strlen(endFrameNum);
-//itoa(padWidth,strPadWidth,10);
-            sprintf(strPadWidth,"%d",padWidth);
-
-//Make a format string like %05d to zero pad 5 places for example
-            strcpy(formatStr,"%0");
-            strcat(formatStr,strPadWidth);
-            strcat(formatStr,"d");
-
-
-            snprintf(screenNumber, 9, formatStr, counter);
-
-            strcat(fname, "/");
-            strcat(fname, screenNumber);
-            strcat(fname, ".tga");
-#ifdef _DEBUG
-            cout << "\nCreating image " << fname << flush;
-#endif
-            outputTGA(0, 0, viewport[2], viewport[3], fname);
-#ifdef _DEBUG
-            cout << "\nImage created successfully" << flush;
-#endif
-        }
-        else
-        {
-            quit(0);
-        }
-        break;
-    case 3:
-        if (counter-1 < end)
-        {
-            if (counter == 1)
-            {
-                system("mkdir seq");
-            }
-            char screenNumber[9];
-
-#ifdef _WINDOWS
-            itoa(counter, screenNumber, 10);
-#endif
-#ifdef _LINUX
-            snprintf(screenNumber, 9, "%d", counter);
-#endif
-            strcpy(fname, "seq/");
-            strcat(fname, screenNumber);
-            strcat(fname, ".tga");
-
-            outputTGA(0, 0, viewport[2], viewport[3], fname);
-        }
-        break;
-    default:
-        break;
-    }
-}
 
 void simpleDraw()
 {
@@ -1433,12 +1107,12 @@ void Draw()
 
     if (incommands.getoutput() == 1 && counter == 1)
     {
-        capture(incommands.getformat());
+        capture(incommands.getformat(), counter);
         quit(0);
     }
     if (incommands.getoutput() > 1)
     {
-        capture(incommands.getoutput());
+        capture(incommands.getoutput(), counter);
     }
 
 
@@ -1544,53 +1218,6 @@ void Motion (int x, int y)
     }
 }
 
-void outputEPS(int size, int doSort, char *filename)
-{
-    GLfloat *feedbackBuffer;
-    GLint returned = -1;
-    FILE *file;
-
-    DEBUG("outputEPS()");
-
-    bool sizeIncrease = false;
-    size = 100000000;
-    while ( returned == -1 )
-    {
-        if (sizeIncrease)
-            size = (int)(size * 1.5);
-        sizeIncrease = true;
-        cout << "\nSize set to:    " << size << flush;
-
-        feedbackBuffer = (GLfloat *) calloc(size, sizeof(GLfloat));
-        cout << "\nfeedbackBuffer= " << feedbackBuffer << flush;
-
-        glFeedbackBuffer(size, GL_3D_COLOR, feedbackBuffer);
-        (void) glRenderMode(GL_FEEDBACK);
-        simpleDraw();
-        returned = glRenderMode(GL_RENDER);
-        cout << "\nReturned Value: " << returned << flush;
-    }
-
-    if (filename)
-    {
-        file = fopen(filename, "w");
-        if (file)
-        {
-            spewWireFrameEPS(file, doSort, returned, feedbackBuffer, "rendereps");
-        }
-        else
-        {
-            printf("Could not open %s\n", filename);
-        }
-    }
-    else
-    {
-        /* Helps debugging to be able to see the decode feedback
-        buffer as text. */
-//printBuffer(returned, feedbackBuffer);
-    }
-    free(feedbackBuffer);
-}
 
 void
 Keyboard(unsigned char key, int x, int y)
@@ -1613,7 +1240,7 @@ Keyboard(unsigned char key, int x, int y)
             break;
         case 'p':
             antiAliasDraw();
-            capture(1);
+            capture(1, counter);
             break;
         case 'r':
             init();
@@ -1623,7 +1250,7 @@ Keyboard(unsigned char key, int x, int y)
             break;
         case 't':
             antiAliasDraw();
-            capture(0);
+            capture(0, counter);
             break;
         case '+':
             radius = radius-0.1;
@@ -1662,11 +1289,11 @@ void mouseButton(int value)
     {
     case 0: //TGA capture
         antiAliasDraw();
-        capture(0);
+        capture(0, counter);
         break;
     case 1: //EPS capture
         antiAliasDraw();
-        capture(1);
+        capture(1, counter);
         break;
     case 2: //exit
         quit(0);

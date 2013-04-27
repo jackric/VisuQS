@@ -8,6 +8,7 @@ Environment:    Borland C++BuilderX-Personal V.1.0.0.1786
 Notes:          Provides access of VQSinput to VQS prog.
 Revision:       1
 ****************************************************************************/
+#pragma once
 
 #include <iostream>
 #include <fstream>
