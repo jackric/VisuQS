@@ -10,6 +10,7 @@ Revision:       $Revision: 1.2 $
 
 #include "createInput.h"
 #include "readInput.h"
+#include "main.h"
 #include <cstdlib>
 
 Input::Input()
@@ -31,7 +32,7 @@ Input::Input()
     }
 
     ifstream fromfile("VQSinput.txt");
-    fromfile.getline(visMethod,3,'#');
+    fromfile.getline(strVisMethod,3,'#');
     fromfile.getline((char*)&junk,100,'\n');
     fromfile.getline(colourMethod,3,'#');
     fromfile.getline((char*)&junk,100,'\n');
@@ -98,9 +99,23 @@ Input::Input()
     fromfile.close();
 }
 
-char Input::getvisMethod()
+DrawStyles::Enum Input::getvisMethod()
 {
-    return visMethod[0];
+    switch(strVisMethod[0])
+    {
+    case 'B':
+        return DrawStyles::Bubbles;
+        break;
+    case 'C':
+        return DrawStyles::Cubes;
+        break;
+    case 'F':
+        return DrawStyles::Fog;
+        break;
+    default:
+        cout << "\nERROR: Please select an appropriate visualization method";
+        quit(1);
+    }
 }
 
 int Input::getoutput()
@@ -325,11 +340,6 @@ int Input::validateInput()
     cout << "\nvalidateInput(): $Revision: 1.2 $";
 #endif
 
-    if (getvisMethod() != 'B' && getvisMethod() != 'C' && getvisMethod() != 'F')
-    {
-        cout << "\nERROR: Please select an appropriate visualization method";
-        status = 1;
-    }
     if (getoutput() > 3 || getoutput() < 0 || (getoutput() == 0 && output[0] != '0'))
     {
         cout << "\nERROR: Please select an appropriate output type";
@@ -340,7 +350,7 @@ int Input::validateInput()
         cout << "\nERROR: Please select an appropriate still image output format";
         status = 1;
     }
-    if (getvisMethod() == 'F' && getoutput() == 1 && getformat() == 1)
+    if (getvisMethod() == DrawStyles::Fog && getoutput() == 1 && getformat() == 1)
     {
         cout << "\nERROR: EPS output cannot be used with the Fog vizualization method";
         status = 1;
@@ -505,12 +515,12 @@ int Input::validateInput()
         cout << "\nERROR: Please select either '0' or '1' for periodic plotting";
         status = 1;
     }
-    if (getperiodic() == 1 && getvisMethod() == 'F')
+    if (getperiodic() == 1 && getvisMethod() == DrawStyles::Fog)
     {
         cout << "\nERROR: Please select either cube or bubble visualisation methods for periodic plotting";
         status = 1;
     }
-    if (getantiA() > 1 && getvisMethod() == 'F')
+    if (getantiA() > 1 && getvisMethod() == DrawStyles::Fog)
     {
         cout << "\nWARNING: Antialiasing is not necessary for 'fog'-type visualizations";
     }

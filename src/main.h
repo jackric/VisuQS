@@ -17,3 +17,4 @@ namespace DrawStyles {
         Bubbles, Fog, Cubes
     };
 };
+void quit(int exitStatus);

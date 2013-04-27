@@ -43,7 +43,7 @@ using namespace std;
 // Global objects, structures & variables
 Input incommands;
 bool flip = incommands.getflip();
-DrawStyles::Enum visMeth;
+DrawStyles::Enum visMeth = incommands.getvisMethod();
 
 float fogColor[]= {incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_b(), 1.0};
 
@@ -1102,20 +1102,6 @@ void visFunc(int stat)
 int main(int argcp, char** argv)
 {
     DEBUG("main()");
-    switch(incommands.getvisMethod())
-    {
-    case 'B':
-        visMeth = DrawStyles::Bubbles;
-        break;
-    case 'C':
-        visMeth = DrawStyles::Cubes;
-        break;
-    case 'F':
-        visMeth = DrawStyles::Fog;
-        break;
-    }
-
-
 
     if (incommands.validateInput() == 1)
     {

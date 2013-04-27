@@ -180,7 +180,7 @@ psiArray readData()
 
     int i, j, k;
 
-    if(commands.getvisMethod() == 'F') // Creates linear coords array
+    if(commands.getvisMethod() == DrawStyles::Fog) // Creates linear coords array
     {
         for(i=0; i < theStructure.extent; i++)
         {
@@ -291,7 +291,7 @@ psiArray readData()
     theStructure.max = *max_element( probs.begin(), probs.end() );
     theStructure.min = *min_element( probs.begin(), probs.end() );
 
-    if(commands.getvisMethod() == 'F') // Sort for more effective blending
+    if(commands.getvisMethod() == DrawStyles::Fog) // Sort for more effective blending
     {
         quickSort(probs, coords, numberLines); // sorts probs (and respective coords) by probability
         cout<<"\nreadData(): Sorted"<<flush;
@@ -318,7 +318,7 @@ psiArray readData()
 
     vector<vector<int> > temp1d;
 
-    if(commands.getvisMethod() == 'F') // Reshapes coord.s vector and assigns to structure
+    if(commands.getvisMethod() == DrawStyles::Fog) // Reshapes coord.s vector and assigns to structure
     {
         if(theStructure.dimension == 1)
         {

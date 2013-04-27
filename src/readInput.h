@@ -12,6 +12,7 @@ Revision:       1
 
 #include <iostream>
 #include <fstream>
+#include "main.h"
 using namespace std;
 
 #define VQS_TEXT_FRAMEINFO 1
@@ -23,7 +24,7 @@ using namespace std;
 class Input
 {
   private:
-    char visMethod[3];
+    char strVisMethod[3];
     char output[9];
     char format[9];
     char imageW[9];
@@ -94,7 +95,7 @@ class Input
 
   public:
     Input();
-    char getvisMethod();
+    DrawStyles::Enum getvisMethod();
     int getoutput();
     int getformat();
     int getimageW();
