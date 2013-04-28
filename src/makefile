@@ -19,7 +19,7 @@ all: executable
 	$(CPP) $(CPPFLAGS) -c -o $@ $<
 
 #LIBFLAGS  = -L/usr/X11R6/lib -lglut -lGL -lGLU -lX11 -lXmu -lXi
-OBJ_FILES = main.o readData.o readInput.o quickSort.o output.o HSVtoRGB.o util.o capture.o annotations.o interaction.o
+OBJ_FILES = main.o readData.o readInput.o quickSort.o HSVtoRGB.o util.o capture.o annotations.o interaction.o
 
 
 executable:	$(OBJ_FILES)

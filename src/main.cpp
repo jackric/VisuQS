@@ -26,7 +26,6 @@ Revision:       $Revision: 1.5 $
 #include "util.h"
 #include "HSVtoRGB.h"
 #include "readInput.h"
-#include "output.h"
 #include "annotations.h"
 #include "main.h"
 #include "interaction.h"
