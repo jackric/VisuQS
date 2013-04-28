@@ -17,7 +17,7 @@ all: executable
 
 
 #LIBFLAGS  = -L/usr/X11R6/lib -lglut -lGL -lGLU -lX11 -lXmu -lXi
-OBJ_FILES = main.o createInput.o readData.o readInput.o quickSort.o output.o HSVtoRGB.o util.o capture.o annotations.o
+OBJ_FILES = main.o createInput.o readData.o readInput.o quickSort.o output.o HSVtoRGB.o util.o capture.o annotations.o interaction.o
 
 executable:	$(OBJ_FILES)
 
@@ -55,6 +55,9 @@ capture.o:	capture.cpp
 
 annotations.o:	annotations.h
 	$(CPP) $(CPPFLAGS) -c annotations.cpp
+
+interaction.o:	interaction.h
+	$(CPP) $(CPPFLAGS) -c interaction.cpp
 
 clean:
 	cd $(EXE_DIR)
