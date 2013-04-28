@@ -76,9 +76,15 @@ void init(void)
 {
     DEBUG("init()");
 
-    glEnable(GL_DEPTH_TEST);
+    int flags[] = {
+        GL_DEPTH_TEST, GL_LIGHTING, GL_COLOR_MATERIAL, GL_CULL_FACE};
 
-    glEnable(GL_LIGHTING);
+    for(int i=0; i<sizeof(flags);i++)
+    {
+        glEnable(flags[i]);
+    }
+
+
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, source_light);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
@@ -100,10 +106,8 @@ void init(void)
     }
 
 
-    glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
-    glEnable (GL_CULL_FACE);
 
     glClearColor (incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_b(), 0.0);
     glClearAccum(0.0, 0.0, 0.0, 0.0);
