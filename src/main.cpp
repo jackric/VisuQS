@@ -94,16 +94,6 @@ void init(void)
         glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
         glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
     }
-    if(incommands.getperiodic())
-    {
-        glFogi(GL_FOG_MODE, GL_EXP2);               // Fog Mode: GL_EXP, GL_EXP2 or GL_LINEAR
-        glFogfv(GL_FOG_COLOR, fogColor);		// Set Fog Color
-        glFogf(GL_FOG_DENSITY, 1.0f);		// How Dense Will The Fog Be
-        glHint(GL_FOG_HINT, GL_NICEST);	        // Fog Hint Value: GL_NICEST, GL_FASTEST or GL_DONT_CARE
-        glFogf(GL_FOG_START, 0.0f);		        // Fog Start Depth
-        glFogf(GL_FOG_END, 3.0f);			// Fog End Depth
-        glEnable(GL_FOG);				// Enables GL_FOG
-    }
 
 
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
@@ -467,42 +457,7 @@ void render()
 
     glTranslatef(incommands.getx_tran(), incommands.gety_tran(), incommands.getz_tran());
 
-    if(incommands.getperiodic()) // Plots crystal periodically
-    {
-        float xCoord, yCoord, zCoord;
-        int intX, intY, intZ;
-        int fromX, fromY, fromZ;
-        int untilX, untilY, untilZ;
-        xCoord = radius*sin((pi/180.0)*angle2)*sin((pi/180.0)*angle) - incommands.getx_tran();
-        yCoord = radius*cos((pi/180.0)*angle2) - incommands.gety_tran();
-        zCoord = radius*sin((pi/180.0)*angle2)*cos((pi/180.0)*angle) - incommands.getz_tran();
-
-        intX = adjustRounding(xCoord);
-        intY = adjustRounding(yCoord);
-        intZ = adjustRounding(zCoord);
-
-
-        adjustRange(xCoord, intX, &fromX, &untilX);
-        adjustRange(yCoord, intY, &fromY, &untilY);
-        adjustRange(zCoord, intZ, &fromZ, &untilZ);
-        for(int x = fromX; x < untilX; x++)
-        {
-            for(int y = fromY; y < untilY; y++)
-            {
-                for(int z = fromZ; z < untilZ; z++)
-                {
-                    glPushMatrix();
-                    glTranslatef((float)x, (float)y, (float)z);
-                    unit.drawCrystal();
-                    glPopMatrix();
-                }
-            }
-        }
-    }
-    else
-    {
-        unit.drawCrystal();
-    }
+    unit.drawCrystal();
 
     glPopMatrix();
 }
