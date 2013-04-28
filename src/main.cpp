@@ -70,12 +70,8 @@ void outputEPS(int size, int doSort, char *filename);
 
 char origDir[256];
 
-
-
-void init(void)
+void opengl_init()
 {
-    DEBUG("init()");
-
     int flags[] = {
         GL_DEPTH_TEST, GL_LIGHTING, GL_COLOR_MATERIAL, GL_CULL_FACE};
 
@@ -101,6 +97,14 @@ void init(void)
 
     glClearColor (incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_b(), 0.0);
     glClearAccum(0.0, 0.0, 0.0, 0.0);
+
+}
+
+
+void init(void)
+{
+    DEBUG("init()");
+
 
     if(incommands.getthreshold() == 1.0)
     {
@@ -895,6 +899,7 @@ int main(int argcp, char** argv)
 
 
     init();
+    opengl_init();
 
 
     glutReshapeFunc(Reshape);
