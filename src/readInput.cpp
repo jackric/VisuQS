@@ -8,7 +8,6 @@ Notes:          Provides access of VQSinput to VQS prog.
 Revision:       $Revision: 1.2 $
 ****************************************************************************/
 
-#include "createInput.h"
 #include "readInput.h"
 #include "main.h"
 #include <cstdlib>
@@ -26,10 +25,6 @@ Input::Input()
     inputFileName = "VQSinput.txt";
     inp.open(inputFileName.c_str(), ifstream::in);
     inp.close();
-    if(inp.fail()) // VQSinput.txt doesn't exist
-    {
-        createInput();
-    }
 
     ifstream fromfile("VQSinput.txt");
     fromfile.getline(strVisMethod,3,'#');
