@@ -139,7 +139,6 @@ void init(void)
 
 
 
-    system("rm -r seq > /dev/null 2> /dev/null");
 
 
 }
@@ -875,28 +874,6 @@ int main(int argcp, char** argv)
         cout<<"\nIgnoring width and height, going full screen!";
         glutFullScreen();
     }
-
-//Get the dir the program was run in, so png files can be copied back later
-    getcwd(origDir,256);
-#ifdef _DEBUG
-    printf("origDir: %s\n",origDir);
-#endif
-
-//Now attempt to make a working directory on the local RAMdisk to improve performance
-//Get current timestamp for unique name...
-    time_t seconds;
-    seconds = time (NULL);
-    char newDir[256];
-    sprintf(newDir,"/dev/shm/VQS-%d",seconds);
-
-    char tmpCmd[256];
-    sprintf(tmpCmd,"mkdir -p %s",newDir);
-    system(tmpCmd);
-
-//Now chdir to the new directory, stills will be made here
-    chdir(newDir);
-
-
 
     init();
     opengl_init();
