@@ -112,7 +112,7 @@ void drawColourScale(Input incommands, float threshold, float max)
         screenText(2745, -1900, -3000, bottom);
 }
 // Source: http://www.lighthouse3d.com/opengl/glut/index.php?strokefont
-void screenText(float x, float y, float z, char* text)
+void screenText(float x, float y, float z, const char text[])
 {
 
     int newlineCount = 0;
@@ -150,7 +150,8 @@ void screenText(float x, float y, float z, char* text)
     glDisable(GL_LINE_SMOOTH);
     glDisable(GL_BLEND);
 
-    if (fogWasEnabled) {
+    if (fogWasEnabled)
+    {
         glEnable(GL_FOG);
     }
     glEnable(GL_LIGHTING);

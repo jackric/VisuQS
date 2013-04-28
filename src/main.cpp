@@ -65,17 +65,18 @@ float threshold;
 bool vidCreated = false;
 bool altCodec = false;
 int frames;
-void outputEPS(int size, int doSort, char *filename);
 
 
 char origDir[256];
 
 void opengl_init()
 {
-    int flags[] = {
-        GL_DEPTH_TEST, GL_LIGHTING, GL_COLOR_MATERIAL, GL_CULL_FACE};
+    int flags[] =
+    {
+        GL_DEPTH_TEST, GL_LIGHTING, GL_COLOR_MATERIAL, GL_CULL_FACE
+    };
 
-    for(int i=0; i<sizeof(flags);i++)
+    for(unsigned int i=0; i<sizeof(flags); i++)
     {
         glEnable(flags[i]);
     }
@@ -222,6 +223,7 @@ public:
         switch(visMeth)
         {
         case DrawStyles::Cubes:
+        {
             size = (float)pow((double)prob, 1.0/3); // size = side-length of cube of volume prob
             reducedMax = (float)pow((double)max, 1.0/3);
             size = size/(data.extent*reducedMax); // Scales cubes to within cells of side-length reducedMax
@@ -238,8 +240,10 @@ public:
                 glColor3f(0.0, 0.0, 0.0);
                 glutWireCube(size);
             }
-            break;
+        }
+        break;
         case DrawStyles::Bubbles:
+        {
             size = (prob/max)/((4.0/3)*pi);
             size = (float)pow((double)size, 1.0/3);
             size = size/(data.extent);
@@ -259,8 +263,10 @@ public:
             gluDeleteQuadric ( q );
 
             glPopMatrix();
-            break;
+        }
+        break;
         case DrawStyles::Fog:
+        {
             size = 1.0/data.extent;
 
             glDisable(GL_DEPTH_TEST);
@@ -278,7 +284,8 @@ public:
 
             glDisable(GL_BLEND);
             glEnable(GL_DEPTH_TEST);
-            break;
+        }
+        break;
         default:
             cout<<"\ncell(): error --- visualisation method parameter not recognised";
             quit(1);
@@ -377,65 +384,6 @@ private:
     }
 };
 
-
-
-
-int adjustRounding(float coord)
-{
-    if (coord < 0)
-    {
-        return (int) coord - 0.5;
-    }
-    else if (coord > 0 )
-    {
-        return (int) coord + 0.5;
-    }
-}
-
-void adjustRange(float coord, int base, int *from, int *until)
-{
-
-    *from = base - 1;
-    *until = base + 2;
-    if(radius > 0)
-    {
-        if(coord > 0)
-        {
-            *from = base - 2;
-            *until = base + 2;
-        }
-        else if(coord < 0)
-        {
-            *from = base - 1;
-            *until = base + 3;
-        }
-        else
-        {
-            *from = base - 2;
-            *until = base + 3;
-        }
-    }
-    else
-    {
-        if(coord > 0)
-        {
-            *from = base - 1;
-            *until = base + 3;
-        }
-        else if(coord < 0)
-        {
-            *from = base - 2;
-            *until = base + 2;
-        }
-        else
-        {
-            *from = base - 2;
-            *until = base + 3;
-        }
-    }
-
-}
-
 void render()
 {
     Cell unit(data);
@@ -461,155 +409,12 @@ void render()
 
 void simpleDraw()
 {
-    char line1[] = "r = ";
-    char line2[] = "phi = ";
-    char line3[] = "theta = ";
-    char charR[12], charPhi[6], charTheta[6];
-    char* p;
-
     DEBUG("simpleDraw()");
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
 
     render();
-
-    if(incommands.gettext()==1) // Puts text on-screen
-    {
-        glPushMatrix();
-        glColor3f(incommands.gettext_r(), incommands.gettext_g(), incommands.gettext_b());
-
-        if(incommands.getfly())
-        {
-            if(radius < 0) // Beyond centre
-            {
-                modAngle = (int)( 180.0 + angle );
-                modAngle2 = (int)( 180.0 - angle2 );
-            }
-            else // Before centre
-            {
-                modAngle = (int)angle;
-                modAngle2 = (int)angle2;
-            }
-        }
-        else // rotation
-        {
-            modAngle = (int)angle;
-            if(modAngle < 0)
-                modAngle = -modAngle;
-
-            modAngle2 = (int)angle2;
-        }
-
-        modAngle = modAngle % 360;        // Keeps 0 <= phi < 360 (on-screen)
-
-        modAngle2 = (int)modAngle2 % 360;    // Keeps -180 < theta <= 180 (on-screen)
-        if(modAngle2 < -179.9999999)
-            modAngle2 = 180 + (modAngle2 % 180);
-        if(modAngle2 > 180)
-            modAngle2 = -180 + (modAngle2 % 180);
-
-        float text_x_offset = -1850;
-        float text_y_offset = -200;
-        float text_z_offset = -1500;
-
-        screenText(text_x_offset, text_y_offset, text_z_offset, &line3[0]);
-        sprintf(charTheta, "%d", (int)modAngle2); // cast to get rid of dodgy numbers
-        screenText(text_x_offset + 570 , text_y_offset, text_z_offset, charTheta);
-
-        screenText(text_x_offset, text_y_offset + 180 , text_z_offset, &line2[0]);
-        sprintf(charPhi, "%d", (int)modAngle);
-        screenText(text_x_offset + 570 , text_y_offset + 180 , text_z_offset, charPhi);
-
-        screenText(text_x_offset, text_y_offset + 360 , text_z_offset, &line1[0]);
-        if(radius < 0)
-            sprintf(charR, "%f", -radius);
-        else
-            sprintf(charR, "%f", radius);
-
-        for(p = charR; *p != '\0'; p++)
-        {
-            if(*p == '.')
-            {
-                p = p + 3;
-                *p = '\0';
-                p--;
-            }
-        }
-        screenText(text_x_offset + 570, text_y_offset+360, text_z_offset, charR);
-        screenText(text_x_offset,text_y_offset+720,text_z_offset,"My test\nNewline");
-
-        glPopMatrix(); // Do not remove this!!! lol
-    }
-    else if(incommands.gettext()==2) //we want to write contents of a text file
-    {
-        glPushMatrix();
-        glColor3f(incommands.gettext_r(), incommands.gettext_g(), incommands.gettext_b());
-
-        int fLen;
-        char * sBuf;
-
-
-        float text_x_offset = -1850;
-        float text_y_offset = -90;
-        float text_z_offset = -1500;
-
-        //see if the program directory had a file called overlay_info.txt, and render it to screen
-        char overlayFile[256];
-        sprintf(overlayFile,"%s/overlay_info.txt",origDir);
-
-        if( FileExists(overlayFile) )
-        {
-            int lineCount=0;
-            char tmpLine[256];
-            ifstream fOverlay;
-
-            fOverlay.open(overlayFile,ios::binary);
-
-            int i;
-            for(i=0; i<=1; i++) //do 2 iterations, first time just count lines, 2nd pass render, offset accordingly
-            {
-
-                while( fOverlay.getline(tmpLine,256) )
-                {
-
-                    if(i!=0) //2nd pass
-                    {
-
-                        screenText(text_x_offset,text_y_offset - (180 * lineCount),text_z_offset,tmpLine);
-
-                    }
-                    lineCount++;
-                }
-
-                if(i==0)
-                {
-                    //This has the effect of centering the text around the middle of the screen
-                    text_y_offset += 90 * lineCount;
-                    //Clear the lineCount again so can be used for newline positioning ^^
-                    lineCount = 0;
-
-
-                    //File was read to get lineCount, now must reset pointers:
-                    fOverlay.clear();
-                    fOverlay.seekg(0,ios::beg);
-
-
-
-                }
-
-            }
-
-
-
-        }
-
-        glPopMatrix(); // Do not remove this!!! lol
-    }
-
-    if(incommands.getcolourMethod() && incommands.gettext())
-        drawColourScale(incommands, threshold, data.max);
-
     glutSwapBuffers();
 }
 
@@ -649,11 +454,6 @@ void rotate()
 
     float r_dif = incommands.getend_r() - incommands.getstart_r();
     float floatNumStepsThere = (phi_dif/360)*frames;
-    float floatNumStepsBack = (1.0-(phi_dif/360))*frames;
-
-//--not sure of the validity of this, but worth a try--//
-    float floatNumStepsThereOffset = (phi_dif/360);
-    float floatNumStepsBackOffset = (1.0-(phi_dif/360));
 
     DEBUG("rotate()");
 

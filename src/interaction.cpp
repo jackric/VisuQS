@@ -11,17 +11,17 @@ void Mouse(int button, int state, int x, int y)
 
     DEBUG("Mouse()");
 
-        if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-        {
-            moving = 1;
-            startx = x;
-            starty = y;
-        }
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        moving = 1;
+        startx = x;
+        starty = y;
+    }
 
-        if (button == GLUT_LEFT_BUTTON && state ==GLUT_UP)
-        {
-            moving = 0;
-        }
+    if (button == GLUT_LEFT_BUTTON && state ==GLUT_UP)
+    {
+        moving = 0;
+    }
 }
 
 void Motion (int x, int y)
