@@ -94,8 +94,8 @@ void opengl_init()
 
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
-
-    glClearColor (incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_b(), 0.0);
+    // black background
+    glClearColor (0, 0, 0, 0.0);
     glClearAccum(0.0, 0.0, 0.0, 0.0);
 
 }
@@ -114,8 +114,6 @@ void init(void)
     {
         threshold = incommands.getthreshold()*data.max;
     }
-
-
 
     frames = (int)( incommands.getframerate()*incommands.getduration() );
     if(!incommands.getfly() && incommands.getfull())
@@ -136,11 +134,6 @@ void init(void)
     angle2 = incommands.getstart_theta();
     rubberneck = 0.0;
     flipped = false;
-
-
-
-
-
 }
 
 
