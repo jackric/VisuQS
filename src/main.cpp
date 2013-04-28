@@ -46,6 +46,7 @@ bool flip = incommands.getflip();
 DrawStyles::Enum visMeth = incommands.getvisMethod();
 
 float fogColor[]= {incommands.getbg_r(), incommands.getbg_g(), incommands.getbg_b(), 1.0};
+bool drawAntialised = false;
 
 psiArray data;
 
@@ -61,8 +62,6 @@ float rubberneck=0.0;
 int modAngle, modAngle2;
 bool flipped;
 float threshold;
-bool vidCreated = false;
-bool altCodec = false;
 int frames;
 
 
@@ -104,6 +103,7 @@ void opengl_init()
 void init(void)
 {
     DEBUG("init()");
+    drawAntialised = (incommands.getantiA() == 1);
 
 
     if(incommands.getthreshold() == 1.0)
@@ -418,7 +418,7 @@ void simpleDraw()
 }
 
 
-void antiAliasDraw(void)
+void antiAliasDraw()
 {
     GLint viewport[4];
     int jitter;
@@ -492,8 +492,6 @@ void rotate()
         }
 
     }
-
-    counter++;
 }
 
 void fly()
@@ -545,33 +543,20 @@ void fly()
             flycounter++;
         }
     }
-    counter++;
 }
 
 
 void Draw()
 {
 
-    if (incommands.getoutput() == 0 || incommands.getantiA() == 1 || incommands.getformat() == 1)
-    {
-        simpleDraw();
-    }
-    else
+    if (drawAntialised)
     {
         antiAliasDraw();
     }
-
-    if (incommands.getoutput() == 1 && counter == 1)
+    else
     {
-        capture(incommands.getformat(), counter);
-        quit(0);
+        simpleDraw();
     }
-    if (incommands.getoutput() > 1)
-    {
-        capture(incommands.getoutput(), counter);
-    }
-
-
 
 }
 
@@ -583,9 +568,15 @@ void idle()
 
 
     if(incommands.getfly())
+    {
         fly();
+    }
     else
+    {
         rotate();
+    }
+
+    counter++;
 
     glutPostRedisplay();
 //This condition tests if the window is not visible on the screen, and if so, calls Draw()
@@ -617,10 +608,7 @@ void Reshape(int w, int h)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-#ifdef _DEBUG
-    cout << "\nReshape(): $Revision: 1.5 $\n";
-    printf("Window reshaped, new dimensions: %d x % d\n",w,h);
-#endif
+    DEBUG("Window reshaped, new dimensions: %d x % d",w,h);
 
     if (h==0)
         gluPerspective(80, (float)w, nearClipPlane, farClipPlane);
@@ -648,11 +636,7 @@ int main(int argcp, char** argv)
         printf("you have invalid input in VQSinput.txt!!\nQuitting...\n");
         quit(1);
     }
-
-
     data = readData();
-
-
 
     glutInit(&argcp, argv);
     glutInitWindowSize(incommands.getimageW(), incommands.getimageH());
