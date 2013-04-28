@@ -365,14 +365,6 @@ public:
         case 3:
             draw3d();
             break;
-            /*
-            case 2:
-            draw2d();
-            break;
-            case 1:
-            draw1d();
-            break;
-            */
         default:
             cout<<"\ncell(): error --- dimension should be 1-3";
             quit(1);
@@ -394,55 +386,6 @@ private:
         }
     }
 };
-
-
-/*
-void draw2d()
-{
-    for (int i=0; i<data.extent; i++)
-    {
-            for (int j=0; j<data.extent; j++) {
-                    glPushMatrix();
-
-                    if(incommands.getvisMethod() == 'F')
-                    {
-                        x = data.coords2d[i][j][0];
-                        y = data.coords2d[i][j][1];
-                        glTranslatef( (float)x/data.extent, (float)y/data.extent, 0.0);
-                    }
-                    else // NOT Fog
-                        glTranslatef( (float)i/data.extent, (float)j/data.extent, 0.0);
-
-                    if (data.matrix2d[i][j] > threshold)
-                        unit.draw(r, g, b, data.matrix2d[i][j]);
-
-                    glPopMatrix();
-    }
-    }
-
-}
-
-void draw1d()
-{
-    for (int i=0; i<data.extent; i++) {
-    glPushMatrix();
-
-    if(incommands.getvisMethod() == 'F')
-    {
-        x = data.coords1d[i];
-        glTranslatef( (float)x/data.extent, 0.0, 0.0);
-    }
-    else // NOT Fog
-        glTranslatef( (float)i/data.extent, 0.0, 0.0);
-
-    if (data.matrix1d[i] > threshold)
-        unit.draw(r, g, b, data.matrix1d[i]);
-    glPopMatrix();
-  }
-
-}
-*/
-
 
 
 
@@ -890,16 +833,6 @@ void idle()
     else
         rotate();
 
-    if((incommands.getoutput() == 3) && (counter > end) && !vidCreated)
-    {
-
-        system("mv seq aviSequence");
-        cout<<"\navi output is not available under Linux.";
-        cout<<"\nThe image sequence you have produced can be found in the 'aviSequence' folder.";
-        cout<<"\nTo create a video file from this sequence we recommend using 'avidemux'.";
-        quit(0);
-    }
-
     glutPostRedisplay();
 //This condition tests if the window is not visible on the screen, and if so, calls Draw()
 //because GLUT would otherwise not render in the next cycle. Necessary for rendering with
@@ -945,37 +878,6 @@ void Reshape(int w, int h)
 }
 
 
-void consoleDump()
-{
-
-    DEBUG("consoleDump()");
-
-    cout << "\n****************************************************************************\n";
-    cout << "Program:        Visualising Quantum States in Disordered Systems\n";
-    cout << "File:           $Id: main.cpp,v 1.5 2010/01/14 16:25:13 phuhdk Exp $\n";
-    cout << "Description:    Displays probability distribution of a 1, 2, or 3 dimensional\n";
-    cout << "                data set on screen, with user-defined visualisation settings\n";
-    cout << "Authors:        Richard Marriott / Luke Gyngell\n";
-    cout << "Environment:    g++ (GCC) 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0)\n";
-    cout << "Notes:          Data read from \"VQSdatafile.txt\" in format \"(x) (y) (z) psi\"\n";
-    cout << "                Editable input parameters read from \"VQSinput.txt\"\n";
-    cout << "                Both files must lie in directory from which program is run\n";
-    cout << "Build Date:     "<< revisionSTR << ", " << authorSTR << ", " << dateSTR << "\n";
-    cout << "****************************************************************************\n";
-    cout << "\n";
-
-    ifstream inputFile("VQSinput.txt");
-    cout << "Current settings of VQSinput.txt\n";
-    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
-    char *tempArray = new char[256];
-    while ( !inputFile.eof() )
-    {
-        inputFile.getline(tempArray, 256);
-        cout << "\n" << tempArray;
-    }
-    delete tempArray;
-    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" << flush;
-}
 
 void visFunc(int stat)
 {
@@ -993,7 +895,6 @@ int main(int argcp, char** argv)
         quit(1);
     }
 
-    consoleDump();
 
     data = readData();
 
@@ -1044,16 +945,6 @@ int main(int argcp, char** argv)
     glutVisibilityFunc(visFunc);
 //glutIdleFunc(NULL);
 
-    if (incommands.getoutput() == 0) //if interactive mode
-    {
-        glutMouseFunc(Mouse);
-        glutMotionFunc(Motion);
-        glutCreateMenu(mouseButton);
-        glutAddMenuEntry("Take TGA of current screen", 0);
-        glutAddMenuEntry("Take EPS of current screen", 1);
-        glutAddMenuEntry("Exit", 2);
-        glutAttachMenu(GLUT_RIGHT_BUTTON);
-    }
     glPopMatrix();
 
 
