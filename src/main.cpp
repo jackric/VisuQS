@@ -90,6 +90,7 @@ int makeQuality(float prob, float max)
 char origDir[256];
 vector<ComputedSite> precache_sites (psiArray data, float threshold)
 {
+    float last_x=0,last_y=0,last_z=0;
     vector<ComputedSite> result;
     for (int i=0; i<data.extent; i++)
     {
@@ -114,16 +115,22 @@ vector<ComputedSite> precache_sites (psiArray data, float threshold)
                     size = size/(data.extent);
 
                     size = size * (1 + overlap*data.extent); // Increases size by arbitrary amount to incite overlapping
+                    float new_x = (float)i/data.extent;
+                    float new_y = (float)j/data.extent;
+                    float new_z = (float)k/data.extent;
                     ComputedSite cs =
                     {
-                        (float)i/data.extent,
-                        (float)j/data.extent,
-                        (float)k/data.extent,
+                        new_x - last_x,
+                        new_y - last_y,
+                        new_z - last_z,
                         {rgb[0], rgb[1], rgb[2]},
                         prob,
                         size
                     };
                     result.push_back(cs);
+                    last_x = new_x;
+                    last_y = new_y;
+                    last_z = new_z;
                 }
 
             }
@@ -276,27 +283,25 @@ private:
     float min;
     psiArray data;
     float translationFactor;
+    GLUquadricObj*  sphere;
 
 public:
     Cell(psiArray inData) // constructor
     {
         data = inData;
         translationFactor = (1.0/(float)data.extent) + ((float)data.extent-3.0)/(2.0*(float)data.extent);
+        sphere = gluNewQuadric ( );
+        gluQuadricDrawStyle ( sphere, GLU_FILL );
+        gluQuadricNormals   ( sphere, GLU_SMOOTH );
     }
 
 
 
     void draw(float rgb[3], float prob, float size)
     {
-        glPushMatrix();
         glColor3f(rgb[0], rgb[1], rgb[2]);
-        GLUquadricObj*  q = gluNewQuadric ( );
-        gluQuadricDrawStyle ( q, GLU_FILL );
-        gluQuadricNormals   ( q, GLU_SMOOTH );
         int quality = makeQuality(prob, data.max);
-        gluSphere ( q, size, quality, quality );
-        gluDeleteQuadric ( q );
-        glPopMatrix();
+        gluSphere ( sphere, size, quality, quality );
     }
     void drawCrystal()
     {
@@ -307,11 +312,9 @@ public:
 
         for(vector<ComputedSite>::iterator it = precached.begin(); it != precached.end(); ++it)
         {
-            glPushMatrix();
             ComputedSite site = *it;
             glTranslatef(site.x, site.y, site.z);
             this->draw(site.rgb, site.prob, site.size);
-            glPopMatrix();
         }
 
         glPopMatrix();
