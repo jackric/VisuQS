@@ -1,4 +1,4 @@
-F	# Visualisation method: 'B'=Bubbles, 'C'=Cubes, 'F'=Fog
+B	# Visualisation method: 'B'=Bubbles, 'C'=Cubes, 'F'=Fog
 1	# Colouring method: '0'=Graded, '1'=Fire
 0	# Periodic plotting: '0'=Single cube, '1'=Atmosphere
 0.0     # Probability threshold - N.B. '1.0' (max) defaults to average
