@@ -32,13 +32,27 @@ Revision:       $Revision: 1.5 $
 
 // #include <cstring>
 
-
+clock_t startm, stopm;
+#define START if ( (startm = clock()) == -1) {printf("Error calling clock");exit(1);}
+#define STOP if ( (stopm = clock()) == -1) {printf("Error calling clock");exit(1);}
+#define PRINTTIME printf( "%6.3f seconds used by the processor.", ((double)stopm-startm)/CLOCKS_PER_SEC);
 
 #include <curses.h>
 
 using namespace std;
 Input incommands;
+struct ComputedSite
+{
+    float x,y,z;
+    float rgb[3];
+    float prob;
+    float size;
+};
+vector<ComputedSite> precached;
 
+int counter = 0;
+int moving=0, startx=0, starty=0, n=0;
+float angle=0, angle2=0, radius=0;
 
 
 // Global objects, structures & variables
@@ -64,8 +78,60 @@ bool flipped;
 float threshold;
 int frames;
 
+int makeQuality(float prob, float max)
+{
+    float x = prob/max;
+    float bit = 4 * log(1+(100*x));
+    bit = bit / log(2);
+    return (int) (5 + bit);
+}
+
 
 char origDir[256];
+vector<ComputedSite> precache_sites (psiArray data, float threshold)
+{
+    vector<ComputedSite> result;
+    for (int i=0; i<data.extent; i++)
+    {
+        for (int j=0; j<data.extent; j++)
+        {
+            for (int k=0; k<data.extent; k++)
+            {
+
+                float prob = data.matrix3d[i][j][k];
+                float rgb[3];
+                float hue;
+                hue = 360.0 * (1.0-( log(data.max)/log(prob) ));
+                hue = hue*(1.0 - cutFrac);
+
+                hsv_to_rgb(rgb, &hue);
+
+                //Test the current site, if prob greater than threshold then draw it.
+                if (prob > threshold)
+                {
+                    float size = (prob/data.max)/((4.0/3)*pi);
+                    size = (float)pow((double)size, 1.0/3);
+                    size = size/(data.extent);
+
+                    size = size * (1 + overlap*data.extent); // Increases size by arbitrary amount to incite overlapping
+                    ComputedSite cs =
+                    {
+                        (float)i/data.extent,
+                        (float)j/data.extent,
+                        (float)k/data.extent,
+                        {rgb[0], rgb[1], rgb[2]},
+                        prob,
+                        size
+                    };
+                    result.push_back(cs);
+                }
+
+            }
+        }
+    }
+
+    return result;
+}
 
 void opengl_init()
 {
@@ -114,6 +180,11 @@ void init(void)
     {
         threshold = incommands.getthreshold()*data.max;
     }
+
+    START;
+    precached = precache_sites(data, threshold);
+    STOP;
+    PRINTTIME;
 
     frames = (int)( incommands.getframerate()*incommands.getduration() );
     if(!incommands.getfly() && incommands.getfull())
@@ -204,182 +275,48 @@ private:
     float max;
     float min;
     psiArray data;
+    float translationFactor;
 
 public:
     Cell(psiArray inData) // constructor
     {
         data = inData;
+        translationFactor = (1.0/(float)data.extent) + ((float)data.extent-3.0)/(2.0*(float)data.extent);
     }
 
 
 
-    void draw(float rgb[3], float prob)
+    void draw(float rgb[3], float prob, float size)
     {
-        max = data.max;
-        min = data.min;
-        float size, reducedMax, opacity;
-
-        switch(visMeth)
-        {
-        case DrawStyles::Cubes:
-        {
-            size = (float)pow((double)prob, 1.0/3); // size = side-length of cube of volume prob
-            reducedMax = (float)pow((double)max, 1.0/3);
-            size = size/(data.extent*reducedMax); // Scales cubes to within cells of side-length reducedMax
-            size = size * (1 + overlap*data.extent); // Increases size by arbitrary amount to incite overlapping
-
-            Cell::maybeColorize(prob, max, rgb);
-
-            glColor3f(rgb[0], rgb[1], rgb[2]);
-            glutSolidCube(size);
-
-            // Black outline on sites that are really large relatively
-            if ( (float)pow((double)prob, 1.0/2) > ((float)pow((double)data.max, 1.0/2)*0.36788) ) // 1/e
-            {
-                glColor3f(0.0, 0.0, 0.0);
-                glutWireCube(size);
-            }
-        }
-        break;
-        case DrawStyles::Bubbles:
-        {
-            size = (prob/max)/((4.0/3)*pi);
-            size = (float)pow((double)size, 1.0/3);
-            size = size/(data.extent);
-
-            size = size * (1 + overlap*data.extent); // Increases size by arbitrary amount to incite overlapping
-
-            glPushMatrix();
-
-            Cell::maybeColorize(prob, max, rgb);
-
-            glRotatef( 90.0, 1.0, 0.0, 0.0 );
-            glColor3f(rgb[0], rgb[1], rgb[2]);
-            GLUquadricObj*  q = gluNewQuadric ( );
-            gluQuadricDrawStyle ( q, GLU_FILL );
-            gluQuadricNormals   ( q, GLU_SMOOTH );
-            gluSphere ( q, size, 20, 20 );
-            gluDeleteQuadric ( q );
-
-            glPopMatrix();
-        }
-        break;
-        case DrawStyles::Fog:
-        {
-            size = 1.0/data.extent;
-
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            opacity = log(pow((double)prob,1.0/2));
-            reducedMax = log(pow((double)max,1.0/2));
-
-
-            Cell::maybeColorize(prob, max, rgb);
-
-            glColor4f(rgb[0], rgb[1], rgb[2], reducedMax/opacity);
-            glutSolidCube(size);
-
-            glDisable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
-        }
-        break;
-        default:
-            cout<<"\ncell(): error --- visualisation method parameter not recognised";
-            quit(1);
-        }
-    }
-    void draw3d()
-    {
-        int x, y, z;
-        float hue;
-        for (int i=0; i<data.extent; i++)
-        {
-            for (int j=0; j<data.extent; j++)
-            {
-                for (int k=0; k<data.extent; k++)
-                {
-                    glPushMatrix();
-
-                    if(visMeth == DrawStyles::Fog)
-                    {
-                        x = data.coords3d[i][j][k][0];
-                        y = data.coords3d[i][j][k][1];
-                        z = data.coords3d[i][j][k][2];
-                        glTranslatef( (float)x/data.extent, (float)y/data.extent, (float)z/data.extent );
-                    }
-                    else // NOT Fog
-                    {
-                        glTranslatef( (float)i/data.extent, (float)j/data.extent, (float)k/data.extent );
-                    }
-
-                    if(visMeth == DrawStyles::Fog) // Decides colour if 'depth-graduated'
-                        hue = (data.extent-(z+1))*(360.0/data.extent); // Fog is sorted and uses
-                    else                                             // different depth coordinate, 'z'
-                        hue = (data.extent-(k+1))*(360.0/data.extent);
-
-                    float rgb[3];
-                    hue = hue*(1.0 - cutFrac);
-                    hsv_to_rgb(&rgb[0], &hue);
-
-                    //Test the current site, if prob greater than threshold then draw it.
-                    if (data.matrix3d[i][j][k] > threshold)
-                    {
-                        this->draw(rgb, data.matrix3d[i][j][k]);
-                    }
-
-                    glPopMatrix();
-                }
-            }
-        }
-
+        glPushMatrix();
+        glColor3f(rgb[0], rgb[1], rgb[2]);
+        GLUquadricObj*  q = gluNewQuadric ( );
+        gluQuadricDrawStyle ( q, GLU_FILL );
+        gluQuadricNormals   ( q, GLU_SMOOTH );
+        int quality = makeQuality(prob, data.max);
+        gluSphere ( q, size, quality, quality );
+        gluDeleteQuadric ( q );
+        glPopMatrix();
     }
     void drawCrystal()
     {
-        float r,g,b;
-        float translationFactor = (1.0/(float)data.extent) + ((float)data.extent-3.0)/(2.0*(float)data.extent);
 
         DEBUG("drawCrystal()");
-
-
         glPushMatrix();
+        glTranslatef( -translationFactor, -translationFactor, -translationFactor);
 
-        if ( data.dimension == 3 )
-            glTranslatef( -translationFactor, -translationFactor, -translationFactor); // translates entire plot to keep
-        if ( data.dimension == 2 )                                                   // it central and within outline cube
-            glTranslatef( -translationFactor, -translationFactor, 0);
-        if ( data.dimension == 1 )
-            glTranslatef( -translationFactor, 0, 0);
-
-        r = 0.0;
-        g = 0.0;
-        b = 1.0;
-
-        switch (data.dimension)
+        for(vector<ComputedSite>::iterator it = precached.begin(); it != precached.end(); ++it)
         {
-        case 3:
-            draw3d();
-            break;
-        default:
-            cout<<"\ncell(): error --- dimension should be 1-3";
-            quit(1);
+            glPushMatrix();
+            ComputedSite site = *it;
+            glTranslatef(site.x, site.y, site.z);
+            this->draw(site.rgb, site.prob, site.size);
+            glPopMatrix();
         }
+
         glPopMatrix();
         glColor3f(incommands.gettext_r(), incommands.gettext_g(), incommands.gettext_b());
         glutWireCube (1.0);
-    }
-private:
-    void maybeColorize(float prob, float max, float rgb[3])
-    {
-        if(incommands.getcolourMethod())
-        {
-            float hue;
-            hue = 360.0 * (1.0-( log(max)/log(prob) ));
-            hue = hue*(1.0 - cutFrac);
-
-            hsv_to_rgb(rgb, &hue);
-        }
     }
 };
 
@@ -549,6 +486,7 @@ void fly()
 void Draw()
 {
 
+    START;
     if (drawAntialised)
     {
         antiAliasDraw();
@@ -557,6 +495,8 @@ void Draw()
     {
         simpleDraw();
     }
+    STOP;
+    PRINTTIME;
 
 }
 
@@ -627,6 +567,7 @@ void visFunc(int stat)
 
 }
 
+
 int main(int argcp, char** argv)
 {
     DEBUG("main()");
@@ -637,6 +578,8 @@ int main(int argcp, char** argv)
         quit(1);
     }
     data = readData();
+
+
 
     glutInit(&argcp, argv);
     glutInitWindowSize(incommands.getimageW(), incommands.getimageH());

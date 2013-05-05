@@ -184,41 +184,17 @@ psiArray readData()
     {
         for(i=0; i < theStructure.extent; i++)
         {
-            if(theStructure.dimension > 1)
+            for(j=0; j < theStructure.extent; j++)
             {
-                for(j=0; j < theStructure.extent; j++)
+                for(k=0; k < theStructure.extent; k++)
                 {
-                    if(theStructure.dimension == 3)
-                    {
-                        for(k=0; k < theStructure.extent; k++)
-                        {
-                            triplet.push_back(i);
-                            triplet.push_back(j);
-                            triplet.push_back(k);
+                    triplet.push_back(i);
+                    triplet.push_back(j);
+                    triplet.push_back(k);
 
-                            coords.push_back(triplet);
-                            triplet.clear();
-                        }
-                    }
-                    else
-                    {
-                        triplet.push_back(i);
-                        triplet.push_back(j);
-                        triplet.push_back(0);
-
-                        coords.push_back(triplet);
-                        triplet.clear();
-                    }
+                    coords.push_back(triplet);
+                    triplet.clear();
                 }
-            }
-            else
-            {
-                triplet.push_back(i);
-                triplet.push_back(0);
-                triplet.push_back(0);
-
-                coords.push_back(triplet);
-                triplet.clear();
             }
         }
         cout<<"\nreadData(): Linear coord.s vector created"<<flush;
@@ -233,79 +209,36 @@ psiArray readData()
     //reset the file pointer
     datafile.seekg(0, ios::beg);
 
-    if(strchr(testStr,'E') != NULL) //is scientific format
-    {
+    bool is_scientific = (strchr(testStr, 'E') != NULL);
 
-        for ( int currentLine = 0; currentLine < numberLines; currentLine++ ) // Creates the probs array
+    for ( int currentLine = 0; currentLine < numberLines; currentLine++ ) // Creates the probs array
+    {
+        if(is_scientific)
         {
-            switch (dimension_extent[2])
-            {
-            case 0:
-                break;
-            case 1: //1D
-                datafile >> skipws >> scientific >> inputValue;
-                break;
-            case 2: //2D
-                datafile >> skipws >> scientific >> inputValue;
-                datafile >> skipws >> scientific >> inputValue;
-                break;
-            case 3: //3D
-                datafile >> skipws >> scientific >> inputValue;
-                datafile >> skipws >> scientific >> inputValue;
-                datafile >> skipws >> scientific >> inputValue;
-                break;
-            }
             datafile >> skipws >> scientific >> inputValue;
-            probs.push_back( inputValue*inputValue ); //is the psi squared value
         }
-    }
-    else
-    {
-
-
-        for ( int currentLine = 0; currentLine < numberLines; currentLine++ ) // Creates the probs array
+        else
         {
-            switch (dimension_extent[2])
-            {
-            case 0:
-                break;
-            case 1: //1D
-                datafile >> inputValue;
-                break;
-            case 2: //2D
-                datafile >> inputValue;
-                datafile >> inputValue;
-                break;
-            case 3: //3D
-                datafile >> inputValue;
-                datafile >> inputValue;
-                datafile >> inputValue;
-                break;
-            }
             datafile >> inputValue;
-            probs.push_back( inputValue*inputValue ); //is the psi squared value
         }
+        probs.push_back( inputValue*inputValue ); //is the psi squared value
     }
     cout<<"\nreadData(): Data extracted"<<flush;
 
     theStructure.max = *max_element( probs.begin(), probs.end() );
     theStructure.min = *min_element( probs.begin(), probs.end() );
 
-    if(commands.getvisMethod() == DrawStyles::Fog) // Sort for more effective blending
-    {
-        quickSort(probs, coords, numberLines); // sorts probs (and respective coords) by probability
-        cout<<"\nreadData(): Sorted"<<flush;
-    }
 
     for(int i = 0; i<numberLines; i++) // Reshapes probs vector and assigns to structure
     {
         theStructure.matrix1d.push_back(probs[i]);
 
-        if( (theStructure.dimension > 1) && ((i+1)%theStructure.extent == 0) )
+        // If we have finished 1 layer, push back the layer onto the 2D matrix
+        if((i+1)%theStructure.extent == 0)
         {
             theStructure.matrix2d.push_back(theStructure.matrix1d);
             theStructure.matrix1d.clear();
-            if ( (theStructure.dimension > 2) && (((i+1)/theStructure.extent)%theStructure.extent == 0) )
+            if (((i+1)/theStructure.extent)%theStructure.extent == 0)
             {
                 theStructure.matrix3d.push_back(theStructure.matrix2d);
                 theStructure.matrix2d.clear();
@@ -314,61 +247,12 @@ psiArray readData()
     }
     probs.clear();
     cout<<"\nreadData(): prob.s vector reshaped"<<flush;
-
-
-    vector<vector<int> > temp1d;
-
-    if(commands.getvisMethod() == DrawStyles::Fog) // Reshapes coord.s vector and assigns to structure
-    {
-        if(theStructure.dimension == 1)
-        {
-            for(int i = 0; i<theStructure.extent; i++)
-            {
-                theStructure.coords1d.push_back(coords[i][0]);
-            }
-        }
-        else if(theStructure.dimension == 2)
-        {
-            for(i = 0; i<theStructure.extent; i++)
-            {
-                for(j = 0; j<theStructure.extent; j++)
-                {
-                    triplet.push_back(coords[(i*theStructure.extent)+j][0]);
-                    triplet.push_back(coords[(i*theStructure.extent)+j][1]);
-                    triplet.push_back(0);
-                    temp1d.push_back(triplet);
-                    triplet.clear();
-                }
-                theStructure.coords2d.push_back(temp1d);
-                temp1d.clear();
-            }
-        }
-        else if(theStructure.dimension == 3)
-        {
-            for(i = 0; i<theStructure.extent; i++)
-            {
-                for(j = 0; j<theStructure.extent; j++)
-                {
-                    for(k = 0; k<theStructure.extent; k++)
-                    {
-                        int element = (i*theStructure.extent*theStructure.extent)+(j*theStructure.extent)+k;
-                        triplet.push_back(coords[element][0]);
-                        triplet.push_back(coords[element][1]);
-                        triplet.push_back(coords[element][2]);
-                        temp1d.push_back(triplet);
-                        triplet.clear();
-                    }
-                    theStructure.coords2d.push_back(temp1d);
-                    temp1d.clear();
-                }
-                theStructure.coords3d.push_back(theStructure.coords2d);
-                theStructure.coords2d.clear();
-            }
-        }
-        cout<<"\nreadData(): coord.s vector reshaped"<<flush;
-    }
-    coords.clear();
-
-
     return theStructure;
 }
+
+
+
+
+
+
+

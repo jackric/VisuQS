@@ -1,10 +1,9 @@
 #pragma once
 
 
-static int counter;
-
-static int moving, startx, starty, n;
-static float angle, angle2, radius;
+extern int counter;
+extern int moving, startx, starty, n;
+extern float angle, angle2, radius;
 struct drawSite
 {
 	int i;

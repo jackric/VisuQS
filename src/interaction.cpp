@@ -5,6 +5,9 @@
 #include "capture.h"
 
 Input _incommands;
+extern int counter;
+extern int moving, startx, starty, n;
+extern float angle, angle2, radius;
 
 void Mouse(int button, int state, int x, int y)
 {

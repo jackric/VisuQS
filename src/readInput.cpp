@@ -107,10 +107,9 @@ DrawStyles::Enum Input::getvisMethod()
     case 'F':
         return DrawStyles::Fog;
         break;
-    default:
-        cout << "\nERROR: Please select an appropriate visualization method";
-        quit(1);
     }
+    cout << "\nERROR: Please select an appropriate visualization method";
+    quit(1);
 }
 
 int Input::getoutput()

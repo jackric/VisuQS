@@ -23,4 +23,5 @@ struct psiArray
   float max;
   float min;
 };
+
 psiArray readData ();
